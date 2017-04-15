@@ -31,6 +31,10 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter-web')
 	runtime('org.springframework.boot:spring-boot-devtools')
 	runtime('mysql:mysql-connector-java')
+
+	compile('com.github.theholywaffle:teamspeak3-api:1.0.14')
+    compile('org.bitbucket.b_c:jose4j:0.5.5')
+
 	compileOnly('org.projectlombok:lombok')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
