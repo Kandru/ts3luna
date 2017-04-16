@@ -1,8 +1,9 @@
 databaseChangeLog:
-#  - changeSet:
-#    id: 1
-#    author: jko
-#    changes:
+    - changeSet:
+        id: 1
+        author: jko
+        changes:
+            - empty: {}
 #    - createTable:
 #      tableName: person
 #      columns:

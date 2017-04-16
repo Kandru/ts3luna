@@ -7,7 +7,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 /**
- * Created by jko on 12.04.2017.
+ * jwt configuration from application.yml
+ *
+ * @author jko
  */
 @Component
 @ConfigurationProperties("jwt")
@@ -15,8 +17,8 @@ import org.springframework.stereotype.Component;
 @NoArgsConstructor
 @AllArgsConstructor
 public class JwtProperties {
-    private Float expiration;
-    private Float notBefore;
-    private Integer clockSkew;
+    private Integer expiration; // minutes
+    private Integer notBefore; // minutes
+    private Integer clockSkew; // seconds
     private String issuer;
 }

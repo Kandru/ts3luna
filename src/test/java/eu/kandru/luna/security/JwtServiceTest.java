@@ -91,15 +91,22 @@ public class JwtServiceTest {
 
     @Test
     public void expiredJwt() throws Exception {
-        systemUnderTest.properties.setExpiration(0.05f);
+        int expiration = systemUnderTest.properties.getExpiration();
+        int clockSkew = systemUnderTest.properties.getClockSkew();
+        systemUnderTest.properties.setExpiration(-1);
         systemUnderTest.properties.setClockSkew(0);
         String jwt = createJwt();
-        Thread.sleep(2500);
-        assertThatThrownBy(() -> verifyJwt(jwt)).as("expired jwt should not be valid")
-                                                .isInstanceOf(InvalidJwtException.class)
-                                                .hasNoCause()
-                                                .hasMessageContaining("rejected")
-                                                .hasMessageContaining("is on or after the Expiration Time");
+        Thread.sleep(1000);
+        try {
+            assertThatThrownBy(() -> verifyJwt(jwt)).as("expired jwt should not be valid")
+                                                    .isInstanceOf(InvalidJwtException.class)
+                                                    .hasNoCause()
+                                                    .hasMessageContaining("rejected")
+                                                    .hasMessageContaining("is on or after the Expiration Time");
+        } finally {
+            systemUnderTest.properties.setExpiration(expiration);
+            systemUnderTest.properties.setClockSkew(clockSkew);
+        }
     }
 
 

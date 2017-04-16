@@ -6,13 +6,21 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Created by jko on 12.04.2017.
+ * Response to {@link AuthChallengeRequest}
+ *
+ * @author jko
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuthChallengeResponse {
+    /**
+     * Temporary identifier which needs to be used in the next authentication step only.
+     */
     private String challenge;
-    private Long expires;
+    /**
+     * The time in minutes until the challenge expires.
+     */
+    private Integer expires; // minutes
 }

@@ -6,13 +6,22 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Created by jko on 12.04.2017.
+ * Request to finish an authentication
+ *
+ * @author jko
  */
-@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Data
 public class AuthenticateRequest {
+    /**
+     * The challenge returned by {@link AuthChallengeResponse}.
+     */
     private String challenge;
+
+    /**
+     * The password provided by an external medium.
+     */
     private String identification;
 }

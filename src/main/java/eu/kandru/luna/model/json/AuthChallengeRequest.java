@@ -6,12 +6,17 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Created by jko on 12.04.2017.
+ * Request to start an authentication.
+ *
+ * @author jko
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuthChallengeRequest {
+    /**
+     * The ID that identifies the client in the database.
+     */
     private Long clientDbId;
 }
