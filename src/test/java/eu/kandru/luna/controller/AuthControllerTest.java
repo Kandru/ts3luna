@@ -1,10 +1,16 @@
 package eu.kandru.luna.controller;
 
 
-import com.jayway.jsonpath.JsonPath;
-import eu.kandru.luna.model.json.AuthChallengeRequest;
-import eu.kandru.luna.model.json.AuthenticateRequest;
-import eu.kandru.luna.util.OneTimePasswordGenerator;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isEmptyString;
+import static org.hamcrest.Matchers.not;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,12 +23,12 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import com.jayway.jsonpath.JsonPath;
+
+import eu.kandru.luna.model.json.AuthChallengeRequest;
+import eu.kandru.luna.model.json.AuthenticateRequest;
+import eu.kandru.luna.teamspeak.modules.login.TS3LoginModule;
+import eu.kandru.luna.util.OneTimePasswordGenerator;
 
 /**
  * Created by jko on 16.04.2017.
@@ -36,6 +42,9 @@ public class AuthControllerTest extends RestControllerTest {
 
     @MockBean
     private OneTimePasswordGenerator pwGenerator;
+    
+    @MockBean
+    private TS3LoginModule ts3LoginModule;
 
     @Before
     public void prepare() throws Exception {
@@ -65,7 +74,7 @@ public class AuthControllerTest extends RestControllerTest {
     }
 
     private String challenge() throws Exception {
-        AuthChallengeRequest request = AuthChallengeRequest.builder().clientDbId(5L).build();
+        AuthChallengeRequest request = AuthChallengeRequest.builder().clientDbId(5).build();
         MvcResult result = mockMvc.perform(post("/auth/challenge").contentType(contentType).content(json(request)))
                                   .andExpect(status().isOk())
                                   .andExpect(jsonPath("$.challenge", not(isEmptyString())))

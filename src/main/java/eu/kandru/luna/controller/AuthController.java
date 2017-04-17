@@ -1,15 +1,7 @@
 package eu.kandru.luna.controller;
 
-import eu.kandru.luna.model.json.AuthChallengeRequest;
-import eu.kandru.luna.model.json.AuthChallengeResponse;
-import eu.kandru.luna.model.json.AuthenticateRequest;
-import eu.kandru.luna.model.json.AuthenticateResponse;
-import eu.kandru.luna.security.AuthTicket;
-import eu.kandru.luna.security.JwtIdentity;
-import eu.kandru.luna.security.JwtProperties;
-import eu.kandru.luna.security.JwtService;
-import eu.kandru.luna.util.OneTimePasswordGenerator;
-import lombok.extern.slf4j.Slf4j;
+import javax.servlet.http.HttpServletResponse;
+
 import org.jose4j.jwt.MalformedClaimException;
 import org.jose4j.jwt.NumericDate;
 import org.jose4j.jwt.consumer.InvalidJwtException;
@@ -20,7 +12,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletResponse;
+import eu.kandru.luna.model.json.AuthChallengeRequest;
+import eu.kandru.luna.model.json.AuthChallengeResponse;
+import eu.kandru.luna.model.json.AuthenticateRequest;
+import eu.kandru.luna.model.json.AuthenticateResponse;
+import eu.kandru.luna.security.AuthTicket;
+import eu.kandru.luna.security.JwtIdentity;
+import eu.kandru.luna.security.JwtProperties;
+import eu.kandru.luna.security.JwtService;
+import eu.kandru.luna.teamspeak.modules.login.TS3LoginModule;
+import eu.kandru.luna.util.OneTimePasswordGenerator;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Handles the authentication of individual clients.
@@ -38,16 +40,19 @@ public class AuthController {
     private JwtService jwtService;
     private JwtProperties jwtProps;
     private OneTimePasswordGenerator passwordGenerator;
+    private TS3LoginModule ts3LoginModule;
+    
 
 
     /**
      * Constructor
      */
     @Autowired
-    public AuthController(JwtService jwtService, JwtProperties jwtProps, OneTimePasswordGenerator passwordGenerator) {
+    public AuthController(JwtService jwtService, JwtProperties jwtProps, OneTimePasswordGenerator passwordGenerator, TS3LoginModule ts3LoginModule) {
         this.jwtService = jwtService;
         this.jwtProps = jwtProps;
         this.passwordGenerator = passwordGenerator;
+        this.ts3LoginModule = ts3LoginModule;
     }
 
     /**
@@ -63,6 +68,7 @@ public class AuthController {
                                .build()
                                .toJwt(jwtService);
         log.info("generated password " + password);
+		ts3LoginModule.sendPasswordToUser(request.getClientDbId(), password);
         return AuthChallengeResponse.builder().challenge(jwt).expires(CHALLENGE_TIMEOUT / 60).build();
     }
 

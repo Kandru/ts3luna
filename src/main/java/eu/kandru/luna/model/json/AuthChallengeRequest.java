@@ -18,5 +18,5 @@ public class AuthChallengeRequest {
     /**
      * The ID that identifies the client in the database.
      */
-    private Long clientDbId;
+    private Integer clientDbId;
 }
