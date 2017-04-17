@@ -1,22 +1,25 @@
 spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/ts3luna
-    username: ts3luna
-    password:
+    datasource:
+        url: jdbc:mysql://localhost:3306/ts3luna
+        username: ts3luna
+        password:
 
-  jpa:
-    hibernate:
-      ddl-auto: none
+    jpa:
+        hibernate:
+            ddl-auto: none
+
+server:
+    context-path: /api
 
 jwt:
-  expiration: 720 # minutes
-  not-before: 1 # minutes
-  clock-skew: 10 # seconds
-  issuer: ts3luna
+    expiration: 720 # minutes
+    not-before: 1 # minutes
+    clock-skew: 10 # seconds
+    issuer: ts3luna
 
 teamspeak:
-  ip: 127.0.0.1
-  port: 10011
-  login:
-  password:
-  server-id:
+    ip: 127.0.0.1
+    port: 10011
+    login:
+    password:
+    server-id:
