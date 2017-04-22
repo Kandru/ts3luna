@@ -21,6 +21,7 @@ public class TestController {
      */
     @RequestMapping(value = "/test")
     public String testSecurity(HttpServletRequest request) {
+
         return "yay";
     }
 }

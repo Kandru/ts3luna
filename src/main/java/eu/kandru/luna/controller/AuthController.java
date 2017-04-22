@@ -1,9 +1,6 @@
 package eu.kandru.luna.controller;
 
-import eu.kandru.luna.model.json.AuthChallengeRequest;
-import eu.kandru.luna.model.json.AuthChallengeResponse;
-import eu.kandru.luna.model.json.AuthenticateRequest;
-import eu.kandru.luna.model.json.AuthenticateResponse;
+import eu.kandru.luna.model.json.*;
 import eu.kandru.luna.security.AuthTicket;
 import eu.kandru.luna.security.JwtIdentity;
 import eu.kandru.luna.security.JwtProperties;
@@ -15,10 +12,7 @@ import org.jose4j.jwt.NumericDate;
 import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.jose4j.lang.JoseException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -53,7 +47,7 @@ public class AuthController {
     /**
      * Starts the authentication process by creating a ticket for the client and providing an identification password.
      */
-    @RequestMapping(value = "/auth/challenge", method = RequestMethod.POST)
+    @PostMapping("/auth/challenge")
     public AuthChallengeResponse challenge(@RequestBody AuthChallengeRequest request) throws JoseException {
         String password = passwordGenerator.generatePassword();
         String jwt = AuthTicket.builder()
@@ -69,7 +63,7 @@ public class AuthController {
     /**
      * Finishes the authentication process by creating the actual jwt the client can use to identify himself.
      */
-    @RequestMapping(value = "auth/authenticate", method = RequestMethod.POST)
+    @PostMapping("/auth/authenticate")
     public AuthenticateResponse authenticate(@RequestBody AuthenticateRequest request,
                                              HttpServletResponse response) throws
             MalformedClaimException,
@@ -88,6 +82,22 @@ public class AuthController {
                                    .authToken(identity.toJwt(jwtService))
                                    .expires(jwtProps.getExpiration())
                                    .build();
+    }
+
+    /**
+     * Allows a client to check his current jwt for validity.
+     */
+    @GetMapping("/auth/check")
+    public AuthCheckResponse checkAuth(@RequestParam String jwt, HttpServletResponse response) {
+        try {
+            JwtIdentity.fromJwt(jwt, jwtService);
+        } catch (InvalidJwtException | MalformedClaimException e) {
+            log.info("checkAuth was provided with an invalid jwt", e);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return AuthCheckResponse.builder().success(false).build();
+        }
+        response.setStatus(HttpServletResponse.SC_OK);
+        return AuthCheckResponse.builder().success(true).build();
     }
 
 
