@@ -21,9 +21,15 @@ public class TS3Manager {
 	@Getter
 	private TS3ApiAsync ts3api;
 	private final int RECONNECTION_TIMEOUT = 10000;
+	private TS3Properties ts3props;
 
+	/**
+	 * TODO
+	 * @param ts3props
+	 */
 	@Autowired
 	public TS3Manager(TS3Properties ts3props) {
+		this.ts3props = ts3props;
 		ts3config = new TS3Config();
 		ts3config.setHost(ts3props.getIp()).setQueryPort(ts3props.getPort())
 				.setReconnectStrategy(ReconnectStrategy.constantBackoff(RECONNECTION_TIMEOUT));
@@ -35,10 +41,10 @@ public class TS3Manager {
 			
 			CommandFuture<Boolean> loginCommand = ts3api.login(ts3props.getLogin(), ts3props.getPassword());
 			loginCommand.onSuccess(result -> {
-				log.debug("Connected to ts3 server.");
+				log.info("Connected to ts3 server.");
 			});
 			loginCommand.onFailure(result -> {
-				log.debug("Failed to connect to ts3 server.");
+				log.error("Failed to connect to ts3 server.");
 			});
 
 			CommandFuture<Boolean> registerCommand = ts3api.registerAllEvents();
@@ -50,7 +56,7 @@ public class TS3Manager {
 			ts3api.setNickname(ts3props.getNickname());
 		} catch (TS3ConnectionFailedException e) {
 			log.error("Couldn't connect to ts3 server.", e);
-			// TODO: reconnect !!!! FATAL
+			// TODO: reconnect
 		}
 	}
 
