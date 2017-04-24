@@ -32,8 +32,7 @@ public class TS3Manager {
 			ts3query.connect();
 
 			ts3api = ts3query.getAsyncApi();
-			ts3api.selectVirtualServerById(ts3props.getServerId());
-
+			
 			CommandFuture<Boolean> loginCommand = ts3api.login(ts3props.getLogin(), ts3props.getPassword());
 			loginCommand.onSuccess(result -> {
 				log.debug("Connected to ts3 server.");
@@ -46,6 +45,9 @@ public class TS3Manager {
 			registerCommand.onFailure(result -> {
 				log.error("Couldnt register all ts3 events.");
 			});
+			
+			ts3api.selectVirtualServerById(ts3props.getServerId());
+			ts3api.setNickname(ts3props.getNickname());
 		} catch (TS3ConnectionFailedException e) {
 			log.error("Couldn't connect to ts3 server.", e);
 			// TODO: reconnect !!!! FATAL

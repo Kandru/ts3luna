@@ -19,5 +19,6 @@ public class TS3Properties {
 	private String login;
 	private String password;
 	private Integer serverId;
+	private String nickname;
 
 }
