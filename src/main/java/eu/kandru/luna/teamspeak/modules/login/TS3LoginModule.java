@@ -95,7 +95,7 @@ public class TS3LoginModule {
 			log.warn("Returned null client info. Can't send password.");
 			return;
 		}
-		CommandFuture<Boolean> privateMessageFuture = ts3api.sendPrivateMessage(clientInfo.getId(), MessageBuilder.generatePasswordMessage(password, clientInfo.getLoginName()));
+		CommandFuture<Boolean> privateMessageFuture = ts3api.sendPrivateMessage(clientInfo.getId(), MessageBuilder.generatePasswordMessage(password, clientInfo.getNickname()));
 		privateMessageFuture.onFailure( result -> {log.warn("Failed to send private message to user with uid \""+clientInfo.getUniqueIdentifier()+"\"");});
 	}
 }
