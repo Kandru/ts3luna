@@ -26,11 +26,13 @@ import com.github.theholywaffle.teamspeak3.api.CommandFuture;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
 
 import eu.kandru.luna.teamspeak.TS3Manager;
+import eu.kandru.luna.teamspeak.TS3Properties;
 
 @RunWith(SpringRunner.class)
 public class TS3LoginModuleTest {
 
 	@Mock TS3Manager manager;
+	@Mock TS3Properties properties;
 	@Mock TS3ApiAsync ts3api;
 	@Mock CommandFuture<List<Client>> dbClients;
 	@Mock Client matchingClient;
@@ -56,6 +58,7 @@ public class TS3LoginModuleTest {
 		when(manager.getTs3api()).thenReturn(ts3api);
 		when(ts3api.getClients()).thenReturn(dbClients);
 		when(dbClients.get(anyLong(),any())).thenReturn(clients);
+		when(properties.getRequestTimeout()).thenReturn(500);
 	}
 	
 	@Test

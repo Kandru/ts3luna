@@ -16,6 +16,7 @@ import com.github.theholywaffle.teamspeak3.api.wrapper.DatabaseClientInfo;
 
 import eu.kandru.luna.i18n.MessageBuilder;
 import eu.kandru.luna.teamspeak.TS3Manager;
+import eu.kandru.luna.teamspeak.TS3Properties;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -28,15 +29,17 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class TS3LoginModule {
     private TS3ApiAsync ts3api;
-    private final int REQUEST_TIMEOUT = 10000;
+    private TS3Properties properties;
 
     /**
      * Constructor
-     * @param ts3Manager
+     * @param ts3Manager {@link TS3Manager} that provides the {@link TS3ApiAsync} for this class.
+     * @param properties Configuration.
      */
     @Autowired
-    public TS3LoginModule(TS3Manager ts3Manager) {
+    public TS3LoginModule(TS3Manager ts3Manager, TS3Properties properties) {
         this.ts3api = ts3Manager.getTs3api();
+        this.properties = properties;
     }
     
     /**
@@ -54,7 +57,7 @@ public class TS3LoginModule {
         CommandFuture<List<Client>> dbClients = ts3api.getClients();
         List<Client> clients = new ArrayList<>();
         try {
-            List<Client> allClients = dbClients.get(REQUEST_TIMEOUT, TimeUnit.MILLISECONDS);
+            List<Client> allClients = dbClients.get(properties.getRequestTimeout(), TimeUnit.MILLISECONDS);
             if (allClients == null)
                 return null; //just a null check
             for (Client client : allClients) {

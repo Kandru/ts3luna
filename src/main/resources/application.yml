@@ -20,8 +20,9 @@ jwt:
 teamspeak:
     ip: 127.0.0.1
     port: 10011
-    login:
-    password:
-    server-id:
+    login: 
+    password: 
+    server-id: 1
     nickname: Luna
+    request-timeout: 500
 

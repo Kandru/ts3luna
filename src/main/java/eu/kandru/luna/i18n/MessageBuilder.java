@@ -7,8 +7,9 @@ public class MessageBuilder {
 		builder.append("\nHi ");
 		builder.append(username);
 		builder.append(",\n");
-		builder.append("your login password is ");
+		builder.append("your login password is [b]");
 		builder.append(password);
+		builder.append("[/b]");
 		return builder.toString();
 	}
 	

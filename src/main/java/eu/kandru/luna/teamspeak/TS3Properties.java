@@ -20,5 +20,6 @@ public class TS3Properties {
     private String password;
     private Integer serverId;
     private String nickname;
+    private Integer requestTimeout;
 
 }
