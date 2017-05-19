@@ -49,7 +49,7 @@ public class TS3Manager {
 			CommandFuture<Boolean> loginCommand = ts3api.login(ts3props.getLogin(), ts3props.getPassword());
 			loginCommand.onSuccess(result -> {
 				if(result){
-					log.info("Connected to ts3 server: {}",result);
+					log.info("Connected to ts3 server.");
 				} else {
 					log.error("Couldn't connect to ts3 server.");
 				}
@@ -67,7 +67,7 @@ public class TS3Manager {
 			});
 			registerCommand.onSuccess(result -> {
 				if(result){
-					log.info("Events registered {}",result);
+					log.info("Events registered.");
 				} else {
 					log.error("Couldnt register ts3 events.");
 				}
