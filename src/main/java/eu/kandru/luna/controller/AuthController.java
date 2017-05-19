@@ -79,7 +79,7 @@ public class AuthController {
 			}
 		} catch (TimeoutException e) {
 			log.warn("Receiving client list from ip timed out.");
-			response.setStatus(500);
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			//TODO: send some better response
 		}
     	return clientMap;

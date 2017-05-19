@@ -48,10 +48,14 @@ public class TS3Manager {
 
 			CommandFuture<Boolean> loginCommand = ts3api.login(ts3props.getLogin(), ts3props.getPassword());
 			loginCommand.onSuccess(result -> {
-				log.info("Connected to ts3 server.");
+				if(result){
+					log.info("Connected to ts3 server: {}",result);
+				} else {
+					log.error("Couldn't connect to ts3 server.");
+				}
 			});
 			loginCommand.onFailure(result -> {
-				log.error("Failed to connect to ts3 server.");
+				log.error("Failure with login command. Connected: {}",result);
 			});
 			
 			ts3api.selectVirtualServerById(ts3props.getServerId());
@@ -59,7 +63,14 @@ public class TS3Manager {
 			
 			CommandFuture<Boolean> registerCommand = ts3api.registerAllEvents();
 			registerCommand.onFailure(result -> {
-				log.error("Couldnt register all ts3 events.");
+				log.error("Register all events command failed. Events registered {}",result);
+			});
+			registerCommand.onSuccess(result -> {
+				if(result){
+					log.info("Events registered {}",result);
+				} else {
+					log.error("Couldnt register ts3 events.");
+				}
 			});
 			
 		} catch (TS3ConnectionFailedException e) {
