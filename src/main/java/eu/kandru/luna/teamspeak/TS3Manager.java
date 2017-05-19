@@ -13,6 +13,11 @@ import com.github.theholywaffle.teamspeak3.api.reconnect.ReconnectStrategy;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Handles the ts3 connection. Provides the ts3 async api.
+ * @author Jonsen
+ *
+ */
 @Component
 @Slf4j
 public class TS3Manager {
@@ -24,8 +29,8 @@ public class TS3Manager {
 	private TS3Properties ts3props;
 
 	/**
-	 * TODO
-	 * @param ts3props
+	 * Constructor
+	 * @param ts3props Configuration used to connect to the ts3 server.
 	 */
 	@Autowired
 	public TS3Manager(TS3Properties ts3props) {		

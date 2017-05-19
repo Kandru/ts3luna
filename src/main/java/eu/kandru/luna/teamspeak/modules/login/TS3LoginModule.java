@@ -19,7 +19,8 @@ import eu.kandru.luna.teamspeak.TS3Manager;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * TODO
+ * Handles authentication with ts3.
+ * Used to send a password to the user and get a list of users by ip.
  * @author Jonsen
  *
  */
@@ -30,7 +31,7 @@ public class TS3LoginModule {
 	private final int REQUEST_TIMEOUT = 10000;
 
 	/**
-	 * TODO
+	 * Constructor
 	 * @param ts3Manager
 	 */
 	@Autowired
@@ -44,10 +45,10 @@ public class TS3LoginModule {
 	public TS3LoginModule(){};
 
 	/**
-	 * TODO
-	 * @param ip
-	 * @return
-	 * @throws TimeoutException
+	 * Gets a list of clients by their ip.
+	 * @param ip IP of the clients to get.
+	 * @return List of clients with connected with the specific ip.
+	 * @throws TimeoutException Thrown when the request takes to long.
 	 */
 	public List<Client> getClientsByIp(String ip) throws TimeoutException {
 		CommandFuture<List<Client>> dbClients = ts3api.getClients();
@@ -69,11 +70,14 @@ public class TS3LoginModule {
 	}
 
 	/**
-	 * TODO
-	 * @param dbID
-	 * @param password
+	 * Sends a password to the user with the given database id.
+	 * Password will be send with a generated text from the i18n module.
+	 * This method is non blocking.
+	 * @param dbID Database id of the user the password should be send to.
+	 * @param password Password that should be send.
 	 */
 	// non blocking
+	//TODO: this method with an on success and on failure method as a parameter.
 	public void sendPasswordToUser(int dbID, String password){
 		CommandFuture<DatabaseClientInfo> client = ts3api.getDatabaseClientInfo(dbID);
 		client.onSuccess(dbClientInfo -> {sendPasswordToDBClient(dbClientInfo, password);});
