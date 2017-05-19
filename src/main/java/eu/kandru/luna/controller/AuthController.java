@@ -69,20 +69,20 @@ public class AuthController {
      * Gets a list with all users from a specific ip
      */
     @GetMapping("/auth/userlist")
-    public Map<Integer, String> userlist(HttpServletRequest request, HttpServletResponse response){
-    	String clientIP = request.getRemoteAddr();
-    	Map<Integer, String> clientMap = new HashMap<>();
-    	try {
-			List<Client> clients = ts3LoginModule.getClientsByIp(clientIP);
-			for (Client client : clients){
-				clientMap.put(client.getDatabaseId(), client.getNickname());
-			}
-		} catch (TimeoutException e) {
-			log.warn("Receiving client list from ip timed out.");
-			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			//TODO: send some better response
-		}
-    	return clientMap;
+    public Map<Integer, String> userlist(HttpServletRequest request, HttpServletResponse response) {
+        String clientIP = request.getRemoteAddr();
+        Map<Integer, String> clientMap = new HashMap<>();
+        try {
+            List<Client> clients = ts3LoginModule.getClientsByIp(clientIP);
+            for (Client client : clients){
+                clientMap.put(client.getDatabaseId(), client.getNickname());
+            }
+        } catch (TimeoutException e) {
+            log.warn("Receiving client list from ip timed out.");
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            //TODO: send some better response
+        }
+        return clientMap;
     }
     
     /**
@@ -98,7 +98,7 @@ public class AuthController {
                                .build()
                                .toJwt(jwtService);
         log.info("generated password " + password);
-		ts3LoginModule.sendPasswordToUser(request.getClientDbId(), password);
+        ts3LoginModule.sendPasswordToUser(request.getClientDbId(), password);
         return AuthChallengeResponse.builder().challenge(jwt).expires(CHALLENGE_TIMEOUT / 60).build();
     }
 

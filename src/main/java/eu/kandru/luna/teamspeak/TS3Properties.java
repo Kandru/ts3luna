@@ -13,12 +13,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TS3Properties {
-	
-	private String ip;
-	private Integer port;
-	private String login;
-	private String password;
-	private Integer serverId;
-	private String nickname;
+    
+    private String ip;
+    private Integer port;
+    private String login;
+    private String password;
+    private Integer serverId;
+    private String nickname;
 
 }

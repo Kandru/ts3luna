@@ -21,62 +21,62 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @Slf4j
 public class TS3Manager {
-	private TS3Config ts3config;
-	private TS3Query ts3query;
-	@Getter
-	private TS3ApiAsync ts3api;
-	private final int RECONNECTION_TIMEOUT = 10000;
-	private TS3Properties ts3props;
+    private TS3Config ts3config;
+    private TS3Query ts3query;
+    @Getter
+    private TS3ApiAsync ts3api;
+    private final int RECONNECTION_TIMEOUT = 10000;
+    private TS3Properties ts3props;
 
-	/**
-	 * Constructor
-	 * @param ts3props Configuration used to connect to the ts3 server.
-	 */
-	@Autowired
-	public TS3Manager(TS3Properties ts3props) {		
-		this.ts3props = ts3props;
-		ts3config = new TS3Config();
+    /**
+     * Constructor
+     * @param ts3props Configuration used to connect to the ts3 server.
+     */
+    @Autowired
+    public TS3Manager(TS3Properties ts3props) {
+        this.ts3props = ts3props;
+        ts3config = new TS3Config();
 
-		ts3config.setHost(ts3props.getIp()).setQueryPort(ts3props.getPort())
-				.setReconnectStrategy(ReconnectStrategy.constantBackoff(RECONNECTION_TIMEOUT));
+        ts3config.setHost(ts3props.getIp()).setQueryPort(ts3props.getPort())
+                .setReconnectStrategy(ReconnectStrategy.constantBackoff(RECONNECTION_TIMEOUT));
 
-		ts3query = new TS3Query(ts3config);
-		try {
-			ts3query.connect();
+        ts3query = new TS3Query(ts3config);
+        try {
+            ts3query.connect();
 
-			ts3api = ts3query.getAsyncApi();
+            ts3api = ts3query.getAsyncApi();
 
-			CommandFuture<Boolean> loginCommand = ts3api.login(ts3props.getLogin(), ts3props.getPassword());
-			loginCommand.onSuccess(result -> {
-				if(result){
-					log.info("Connected to ts3 server.");
-				} else {
-					log.error("Couldn't connect to ts3 server.");
-				}
-			});
-			loginCommand.onFailure(result -> {
-				log.error("Failure with login command. Connected: {}",result);
-			});
-			
-			ts3api.selectVirtualServerById(ts3props.getServerId());
-			ts3api.setNickname(ts3props.getNickname());
-			
-			CommandFuture<Boolean> registerCommand = ts3api.registerAllEvents();
-			registerCommand.onFailure(result -> {
-				log.error("Register all events command failed. Events registered {}",result);
-			});
-			registerCommand.onSuccess(result -> {
-				if(result){
-					log.info("Events registered.");
-				} else {
-					log.error("Couldnt register ts3 events.");
-				}
-			});
-			
-		} catch (TS3ConnectionFailedException e) {
-			log.error("Couldn't connect to ts3 server.", e);
-			// TODO: reconnect
-		}
-	}
+            CommandFuture<Boolean> loginCommand = ts3api.login(ts3props.getLogin(), ts3props.getPassword());
+            loginCommand.onSuccess(result -> {
+                if(result){
+                    log.info("Connected to ts3 server.");
+                } else {
+                    log.error("Couldn't connect to ts3 server.");
+                }
+            });
+            loginCommand.onFailure(result -> {
+                log.error("Failure with login command. Connected: {}",result);
+            });
+            
+            ts3api.selectVirtualServerById(ts3props.getServerId());
+            ts3api.setNickname(ts3props.getNickname());
+            
+            CommandFuture<Boolean> registerCommand = ts3api.registerAllEvents();
+            registerCommand.onFailure(result -> {
+                log.error("Register all events command failed. Events registered {}",result);
+            });
+            registerCommand.onSuccess(result -> {
+                if(result){
+                    log.info("Events registered.");
+                } else {
+                    log.error("Couldnt register ts3 events.");
+                }
+            });
+            
+        } catch (TS3ConnectionFailedException e) {
+            log.error("Couldn't connect to ts3 server.", e);
+            // TODO: reconnect
+        }
+    }
 
 }
