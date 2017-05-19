@@ -84,7 +84,7 @@ public class TS3LoginModule {
     public void sendPasswordToUser(int dbID, String password){
         CommandFuture<DatabaseClientInfo> client = ts3api.getDatabaseClientInfo(dbID);
         client.onSuccess(dbClientInfo -> {sendPasswordToDBClient(dbClientInfo, password);});
-        client.onFailure( result -> {log.warn("Failed to get db client info for db id \""+dbID+"\"");});
+        client.onFailure( result -> {log.warn("Failed to get db client info for db id \"{}\"",dbID);});
     }
     
     private void sendPasswordToDBClient(DatabaseClientInfo dbClientInfo, String password){
@@ -94,7 +94,7 @@ public class TS3LoginModule {
         }
         CommandFuture<ClientInfo> clientInfoFuture = ts3api.getClientByUId(dbClientInfo.getUniqueIdentifier());
         clientInfoFuture.onSuccess( clientInfo -> {sendPasswordToClient(clientInfo, password);});
-        clientInfoFuture.onFailure( result -> {log.warn("Failed to get client info for client uid \""+dbClientInfo.getUniqueIdentifier()+"\"");});
+        clientInfoFuture.onFailure( result -> {log.warn("Failed to get client info for client uid \"{}\"",dbClientInfo.getUniqueIdentifier());});
     }
 
     private void sendPasswordToClient(ClientInfo clientInfo, String password) {
@@ -103,6 +103,6 @@ public class TS3LoginModule {
             return;
         }
         CommandFuture<Boolean> privateMessageFuture = ts3api.sendPrivateMessage(clientInfo.getId(), MessageBuilder.generatePasswordMessage(password, clientInfo.getNickname()));
-        privateMessageFuture.onFailure( result -> {log.warn("Failed to send private message to user with uid \""+clientInfo.getUniqueIdentifier()+"\"");});
+        privateMessageFuture.onFailure( result -> {log.warn("Failed to send private message to user with uid \"{}\"",clientInfo.getUniqueIdentifier());});
     }
 }
