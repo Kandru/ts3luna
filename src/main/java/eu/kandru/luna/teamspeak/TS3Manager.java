@@ -1,6 +1,7 @@
 package eu.kandru.luna.teamspeak;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import com.github.theholywaffle.teamspeak3.TS3ApiAsync;
@@ -26,7 +27,6 @@ public class TS3Manager {
     @Getter
     private TS3ApiAsync ts3api;
     private final int RECONNECTION_TIMEOUT = 10000;
-    private TS3Properties ts3props;
 
     /**
      * Constructor
@@ -34,7 +34,6 @@ public class TS3Manager {
      */
     @Autowired
     public TS3Manager(TS3Properties ts3props) {
-        this.ts3props = ts3props;
         ts3config = new TS3Config();
 
         ts3config.setHost(ts3props.getIp()).setQueryPort(ts3props.getPort())
@@ -77,6 +76,11 @@ public class TS3Manager {
             log.error("Couldn't connect to ts3 server.", e);
             // TODO: reconnect
         }
+    }
+    
+   @Bean
+    public TS3ApiAsync getTs3ApiAsync(){
+    	return ts3api;
     }
 
 }

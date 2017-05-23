@@ -37,8 +37,8 @@ public class TS3LoginModule {
      * @param properties Configuration.
      */
     @Autowired
-    public TS3LoginModule(TS3Manager ts3Manager, TS3Properties properties) {
-        this.ts3api = ts3Manager.getTs3api();
+    public TS3LoginModule(TS3ApiAsync ts3apiAsync, TS3Properties properties) {
+        this.ts3api = ts3apiAsync;
         this.properties = properties;
     }
     
