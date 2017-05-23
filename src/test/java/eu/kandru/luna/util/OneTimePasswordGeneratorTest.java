@@ -2,6 +2,9 @@ package eu.kandru.luna.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,14 +22,11 @@ public class OneTimePasswordGeneratorTest {
 	
 	@Test
 	public void testDifferentPasswords(){
-		String[] passwords = new String[PASSWORDS_TO_CHECK];
+		List<String> passwords = new ArrayList<>();
 		for (int i = 0; i < PASSWORDS_TO_CHECK; i++){
-			passwords[i] = passwordGenerator.generatePassword();
-		}
-		for (int i = 0; i < PASSWORDS_TO_CHECK-1; i++){
-			for (int x = i+1; x < PASSWORDS_TO_CHECK; x++){
-				assertThat(passwords[i]).isNotEqualTo(passwords[x]);
-			}
+			String tmpPw = passwordGenerator.generatePassword();
+			assertThat(passwords).doesNotContain(tmpPw);
+			passwords.add(tmpPw);
 		}
 	}
 	

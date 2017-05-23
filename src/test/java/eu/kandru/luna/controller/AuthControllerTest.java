@@ -107,8 +107,8 @@ public class AuthControllerTest extends RestControllerTest {
     }
 
     private String authenticateSuccessful(String challenge) throws Exception {
-    	verify(ts3api).sendPrivateMessage(eq(CLIENT_ID), passwordTextCaptor.capture());    	
-    	Pattern p = Pattern.compile("[0-9]{6}");
+        verify(ts3api).sendPrivateMessage(eq(CLIENT_ID), passwordTextCaptor.capture());    	
+        Pattern p = Pattern.compile("[0-9]{6}");
         Matcher m = p.matcher(passwordTextCaptor.getValue());
         assertThat(m.find()).isTrue();
         String sentPassword = m.group();
