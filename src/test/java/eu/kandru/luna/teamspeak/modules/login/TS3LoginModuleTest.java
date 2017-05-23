@@ -31,7 +31,8 @@ public class TS3LoginModuleTest extends AbstractTS3ApiMock{
 	
 	private static final int CLIENT_COUNT_TO_TEST = 10;
 	private static final String PASSWORD = "some_password";
-	private static final int DEFAULT_CLIENT_TO_TEST = 3; //0 < DEFAULT_..._TEST < CLIENT_COUNT_TO_TEST
+	private static final int DEFAULT_CLIENT_TO_TEST = 3; 
+	//0 < DEFAULT_CLIENT_TO_TEST < CLIENT_COUNT_TO_TEST
     
     @Before
     public void setUp() throws InterruptedException, TimeoutException{
