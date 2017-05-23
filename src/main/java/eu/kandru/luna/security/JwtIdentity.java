@@ -21,7 +21,7 @@ import java.security.Principal;
 @Builder
 public class JwtIdentity implements Principal {
     // NOTE: Right now this is a stub. Add content as needed.
-    private Long clientDbId;
+    private Integer clientDbId;
 
 
     /**
@@ -37,7 +37,7 @@ public class JwtIdentity implements Principal {
             InvalidJwtException,
             MalformedClaimException {
         JwtClaims claims = jwtService.parseJwt(jwt);
-        return JwtIdentity.builder().clientDbId(Long.parseLong(claims.getSubject())).build();
+        return JwtIdentity.builder().clientDbId(Integer.parseInt(claims.getSubject())).build();
     }
 
     /**

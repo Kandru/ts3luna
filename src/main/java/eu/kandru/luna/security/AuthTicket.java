@@ -26,7 +26,7 @@ public class AuthTicket {
     /**
      * DatabaseID given by the client.
      */
-    private Long clientDbId;
+    private Integer clientDbId;
 
     /**
      * Password that we expect the client to give.
@@ -52,7 +52,7 @@ public class AuthTicket {
             MalformedClaimException {
         JwtClaims claims = jwtService.parseJwt(jwt);
         return AuthTicket.builder()
-                         .clientDbId(Long.parseLong(claims.getSubject()))
+                         .clientDbId(Integer.parseInt(claims.getSubject()))
                          .identification(claims.getClaimValue(IDENTIFICATION_CLAIM_NAME, String.class))
                          .expiration(claims.getExpirationTime())
                          .build();

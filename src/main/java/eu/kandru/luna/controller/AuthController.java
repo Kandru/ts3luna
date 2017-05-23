@@ -1,20 +1,38 @@
 package eu.kandru.luna.controller;
 
-import eu.kandru.luna.model.json.*;
-import eu.kandru.luna.security.AuthTicket;
-import eu.kandru.luna.security.JwtIdentity;
-import eu.kandru.luna.security.JwtProperties;
-import eu.kandru.luna.security.JwtService;
-import eu.kandru.luna.util.OneTimePasswordGenerator;
-import lombok.extern.slf4j.Slf4j;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeoutException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.jose4j.jwt.MalformedClaimException;
 import org.jose4j.jwt.NumericDate;
 import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.jose4j.lang.JoseException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletResponse;
+import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
+
+import eu.kandru.luna.model.json.AuthChallengeRequest;
+import eu.kandru.luna.model.json.AuthChallengeResponse;
+import eu.kandru.luna.model.json.AuthCheckResponse;
+import eu.kandru.luna.model.json.AuthenticateRequest;
+import eu.kandru.luna.model.json.AuthenticateResponse;
+import eu.kandru.luna.security.AuthTicket;
+import eu.kandru.luna.security.JwtIdentity;
+import eu.kandru.luna.security.JwtProperties;
+import eu.kandru.luna.security.JwtService;
+import eu.kandru.luna.teamspeak.modules.login.TS3LoginModule;
+import eu.kandru.luna.util.OneTimePasswordGenerator;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Handles the authentication of individual clients.
@@ -32,18 +50,41 @@ public class AuthController {
     private JwtService jwtService;
     private JwtProperties jwtProps;
     private OneTimePasswordGenerator passwordGenerator;
+    private TS3LoginModule ts3LoginModule;
+    
 
 
     /**
      * Constructor
      */
     @Autowired
-    public AuthController(JwtService jwtService, JwtProperties jwtProps, OneTimePasswordGenerator passwordGenerator) {
+    public AuthController(JwtService jwtService, JwtProperties jwtProps, OneTimePasswordGenerator passwordGenerator, TS3LoginModule ts3LoginModule) {
         this.jwtService = jwtService;
         this.jwtProps = jwtProps;
         this.passwordGenerator = passwordGenerator;
+        this.ts3LoginModule = ts3LoginModule;
     }
-
+    
+    /**
+     * Gets a list with all users from a specific ip
+     */
+    @GetMapping("/auth/userlist")
+    public Map<Integer, String> userlist(HttpServletRequest request, HttpServletResponse response) {
+        String clientIP = request.getRemoteAddr();
+        Map<Integer, String> clientMap = new HashMap<>();
+        try {
+            List<Client> clients = ts3LoginModule.getClientsByIp(clientIP);
+            for (Client client : clients){
+                clientMap.put(client.getDatabaseId(), client.getNickname());
+            }
+        } catch (TimeoutException e) {
+            log.warn("Receiving client list from ip timed out.");
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            //TODO: send some better response
+        }
+        return clientMap;
+    }
+    
     /**
      * Starts the authentication process by creating a ticket for the client and providing an identification password.
      */
@@ -57,6 +98,7 @@ public class AuthController {
                                .build()
                                .toJwt(jwtService);
         log.info("generated password " + password);
+        ts3LoginModule.sendPasswordToUser(request.getClientDbId(), password);
         return AuthChallengeResponse.builder().challenge(jwt).expires(CHALLENGE_TIMEOUT / 60).build();
     }
 
