@@ -8,9 +8,6 @@ spring:
         hibernate:
             ddl-auto: none
 
-server:
-    context-path: /api
-
 jwt:
     expiration: 720 # minutes
     not-before: 1 # minutes
@@ -20,8 +17,8 @@ jwt:
 teamspeak:
     ip: 127.0.0.1
     port: 10011
-    login: 
-    password: 
+    login: serveradmin
+    password: 82nztvNP
     server-id: 1
     nickname: Luna
     request-timeout: 500

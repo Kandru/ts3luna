@@ -19,7 +19,7 @@ public class TestController {
     /**
      * Random text
      */
-    @RequestMapping(value = "/test")
+    @RequestMapping(value = "/protected/test")
     public String testSecurity(HttpServletRequest request) {
 
         return "yay";
