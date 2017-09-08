@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -22,6 +21,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * Configures security/authorization and provides the required beans.
@@ -70,7 +70,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(Arrays.asList("http://127.0.0.1:3000", "http://localhost:3000"));
-        config.setAllowedHeaders(Arrays.asList("Content-Type"));
+        config.setAllowedHeaders(Collections.singletonList("Content-Type"));
         config.setAllowedMethods(Arrays.asList("GET", "POST"));
         UrlBasedCorsConfigurationSource urlConfig = new UrlBasedCorsConfigurationSource();
         urlConfig.registerCorsConfiguration("/**", config);
@@ -87,9 +87,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.cors().and().csrf().disable()
             .exceptionHandling().authenticationEntryPoint(unauthorizedEntryPoint).and()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-            .authorizeRequests().antMatchers("/auth/**").permitAll()
-            .antMatchers(HttpMethod.OPTIONS, "**").permitAll()
-            .anyRequest().authenticated().and()
+                .authorizeRequests().antMatchers("/protected/**").authenticated()
+                .anyRequest().permitAll().and()
             .httpBasic().disable()
             .addFilterBefore(getJwtAuthFilter(), UsernamePasswordAuthenticationFilter.class)
             .headers().cacheControl();

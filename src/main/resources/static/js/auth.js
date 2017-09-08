@@ -40,7 +40,7 @@ function getAuthTicket() {
 function obtainTicket(clDbId) {
     return $.ajax({
         type: 'POST',
-        url: lunaOptions.buildUrl('/auth/challenge'),
+        url: '/auth/challenge',
         cache: false,
         contentType: 'application/json',
         crossDomain: true,
@@ -58,7 +58,7 @@ function obtainTicket(clDbId) {
 function obtainToken(password) {
     return $.ajax({
         type: 'POST',
-        url: lunaOptions.buildUrl('/auth/authenticate'),
+        url: '/auth/authenticate',
         cache: false,
         contentType: 'application/json',
         data: JSON.stringify({
@@ -77,7 +77,7 @@ function obtainToken(password) {
 function verifyAuthentication() {
     return $.ajax({
         type: 'GET',
-        url: lunaOptions.buildUrl('/auth/check'),
+        url: '/auth/check',
         data: {
             jwt: getAuthToken()
         },

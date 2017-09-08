@@ -1,24 +1,10 @@
 package eu.kandru.luna.controller;
 
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isEmptyString;
-import static org.hamcrest.Matchers.not;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import com.github.theholywaffle.teamspeak3.api.CommandFuture;
+import com.jayway.jsonpath.JsonPath;
+import eu.kandru.luna.model.json.AuthChallengeRequest;
+import eu.kandru.luna.model.json.AuthenticateRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,11 +18,19 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 
-import com.github.theholywaffle.teamspeak3.api.CommandFuture;
-import com.jayway.jsonpath.JsonPath;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import eu.kandru.luna.model.json.AuthChallengeRequest;
-import eu.kandru.luna.model.json.AuthenticateRequest;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Created by jko on 16.04.2017.
@@ -47,7 +41,8 @@ import eu.kandru.luna.model.json.AuthenticateRequest;
 @SpringBootTest
 @EnableWebSecurity
 public class AuthControllerTest extends RestControllerTest {
-    
+
+    public static final String TEST_URL = "/protected/test";
     @Captor
     private ArgumentCaptor<String> passwordTextCaptor;
 	private CommandFuture<Boolean> privateMessageFuture;
@@ -66,7 +61,7 @@ public class AuthControllerTest extends RestControllerTest {
 
     @Test
     public void testInaccessible() throws Exception {
-        mockMvc.perform(get("/test")).andExpect(status().isUnauthorized());
+        mockMvc.perform(get(TEST_URL)).andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -83,7 +78,7 @@ public class AuthControllerTest extends RestControllerTest {
     @Test
     public void testAccessible() throws Exception {
         String token = authenticateSuccessful(challenge());
-        mockMvc.perform(get("/test").header("Authorization", "Bearer " + token)).andExpect(status().isOk());
+        mockMvc.perform(get(TEST_URL).header("Authorization", "Bearer " + token)).andExpect(status().isOk());
     }
 
     private String challenge() throws Exception {
