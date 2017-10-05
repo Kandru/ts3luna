@@ -21,10 +21,10 @@ pipeline {
         input 'Deploy to production?'
       }
     }
-    post {
-      always {
-        junit(keepLongStdio: true, testResults: 'build/test-results/test/*xml')
-      }
+  }
+  post {
+    always {
+      junit(keepLongStdio: true, testResults: 'build/test-results/test/*xml')
     }
   }
 }
