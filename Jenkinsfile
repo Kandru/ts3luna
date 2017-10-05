@@ -9,7 +9,6 @@ pipeline {
     stage('unit test') {
       steps {
         sh './gradlew check'
-        junit(keepLongStdio: true, testResults: 'build/test-results/test/*xml')
       }
     }
     stage('deploy staging') {
@@ -20,6 +19,11 @@ pipeline {
     stage('deploy production') {
       steps {
         input 'Deploy to production?'
+      }
+    }
+    post {
+      always {
+        junit(keepLongStdio: true, testResults: 'build/test-results/test/*xml')
       }
     }
   }
