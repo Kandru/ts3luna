@@ -35,7 +35,7 @@ public class TS3LoginModuleTest extends AbstractTS3ApiMock{
     
     @Before
     public void setUp() throws InterruptedException, TimeoutException{
-    	systemUnderTest = new TS3LoginModule(manager, properties);
+    	systemUnderTest = new TS3LoginModule(ts3api, properties);
     	
         privateMessageFuture = new CommandFuture<>();
         

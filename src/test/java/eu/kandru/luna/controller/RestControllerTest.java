@@ -1,5 +1,6 @@
 package eu.kandru.luna.controller;
 
+import eu.kandru.luna.teamspeak.modules.login.AbstractTS3ApiMock;
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -33,10 +34,10 @@ public class RestControllerTest extends AbstractTS3ApiMock{
     private WebApplicationContext webApplicationContext;
     @Autowired
     private Filter springSecurityFilterChain;
-    private HttpMessageConverter httpConverter;
+    private HttpMessageConverter<Object> httpConverter;
 
     @Autowired
-    void setConverters(HttpMessageConverter<?>[] converters) {
+    void setConverters(HttpMessageConverter<Object>[] converters) {
 
         httpConverter = Arrays.asList(converters).stream()
                               .filter(hmc -> hmc instanceof MappingJackson2HttpMessageConverter)
