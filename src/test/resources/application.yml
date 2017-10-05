@@ -1,9 +1,4 @@
 spring:
-    datasource:
-        url: jdbc:mysql://localhost:3306/ts3luna
-        username: ts3luna
-        password:
-
     jpa:
         hibernate:
             ddl-auto: none

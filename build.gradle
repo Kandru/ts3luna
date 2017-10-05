@@ -61,4 +61,7 @@ dependencies {
 
 	compileOnly('org.projectlombok:lombok')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
+
+	testRuntime('com.h2database:h2:1.4.196')
+
 }
