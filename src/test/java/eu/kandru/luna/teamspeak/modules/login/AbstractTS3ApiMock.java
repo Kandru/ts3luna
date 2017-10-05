@@ -2,18 +2,19 @@ package eu.kandru.luna.teamspeak.modules.login;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.doReturn;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
-import org.mockito.Mock;
+import org.junit.Before;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import com.github.theholywaffle.teamspeak3.TS3ApiAsync;
 import com.github.theholywaffle.teamspeak3.api.CommandFuture;
@@ -25,11 +26,12 @@ import com.github.theholywaffle.teamspeak3.api.wrapper.DatabaseClientInfo;
 import eu.kandru.luna.teamspeak.TS3Manager;
 import eu.kandru.luna.teamspeak.TS3Properties;
 
+
 public abstract class AbstractTS3ApiMock {
 
-    @Mock protected TS3Manager manager;
-    @Mock protected TS3Properties properties;
-    @Mock protected TS3ApiAsync ts3api;
+    @MockBean protected TS3Manager manager;
+    @MockBean protected TS3Properties properties;
+    @MockBean protected TS3ApiAsync ts3api;
 	
     @Spy protected CommandFuture<List<Client>> clientList;
     protected List<CommandFuture<ClientInfo>> clientInfoFutures;
@@ -41,13 +43,15 @@ public abstract class AbstractTS3ApiMock {
     protected List<DatabaseClientInfo> mockedDbClientInfos;
     protected List<DatabaseClient> mockedDbClients;    
     
-    private static final int DEFAULT_REQUEST_TIMEOUT = 500;
-    private static final int DEFAULT_SERVER_PORT = 4242;
-    private static final String DEFAULT_TS3_IP = "192.168.42.42";
+    protected static final int DEFAULT_REQUEST_TIMEOUT = 500;
+    protected static final int DEFAULT_SERVER_PORT = 4242;
+    protected static final String DEFAULT_TS3_IP = "192.168.42.42";
     
     
-    protected void setup() throws InterruptedException, TimeoutException{
-    	MockitoAnnotations.initMocks(this);
+    @Before
+    public void mockTS3Api() throws InterruptedException, TimeoutException{
+    	//MockitoAnnotations.initMocks(this);
+    	
     	mockedClients  = new ArrayList<>();
     	mockedClientInfos  = new ArrayList<>();
     	mockedDbClients = new ArrayList<>();
@@ -117,9 +121,12 @@ public abstract class AbstractTS3ApiMock {
 	protected void integrateClient(ClientInfo mockedClient) throws InterruptedException, TimeoutException {
 		@SuppressWarnings("unchecked")
 		CommandFuture<ClientInfo> spyCommandFuture = spy(CommandFuture.class);
+		
 		//you can use those to get the client info and trigger the success method with set
+		//TODO: probably we shouldn't mock those to check whether they are used or not
 		doReturn(mockedClient).when(spyCommandFuture).get();
 		doReturn(mockedClient).when(spyCommandFuture).get(anyLong(),any());
+		
 		clientInfoFutures.add(spyCommandFuture);
 		
 		when(ts3api.getClientInfo(mockedClient.getId())).thenReturn(spyCommandFuture);
@@ -129,9 +136,12 @@ public abstract class AbstractTS3ApiMock {
     protected void integrateDatabaseClient(DatabaseClientInfo mockedClient) throws InterruptedException, TimeoutException{
     	@SuppressWarnings("unchecked")
 		CommandFuture<DatabaseClientInfo> spyCommandFuture = spy(CommandFuture.class);
+    	
 		//you can use those to get the client info and trigger the success method with set
+		//TODO: probably we shouldn't mock those to check whether they are used or not
 		doReturn(mockedClient).when(spyCommandFuture).get();
 		doReturn(mockedClient).when(spyCommandFuture).get(anyLong(),any());
+		
 		dbClientInfoFutures.add(spyCommandFuture);
 		
 		when(ts3api.getDatabaseClientInfo(mockedClient.getDatabaseId())).thenReturn(spyCommandFuture);

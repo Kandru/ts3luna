@@ -5,6 +5,8 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.Matchers.not;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -14,6 +16,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -27,7 +31,6 @@ import com.jayway.jsonpath.JsonPath;
 
 import eu.kandru.luna.model.json.AuthChallengeRequest;
 import eu.kandru.luna.model.json.AuthenticateRequest;
-import eu.kandru.luna.teamspeak.modules.login.TS3LoginModule;
 import eu.kandru.luna.util.OneTimePasswordGenerator;
 
 /**
@@ -40,15 +43,18 @@ import eu.kandru.luna.util.OneTimePasswordGenerator;
 @EnableWebSecurity
 public class AuthControllerTest extends RestControllerTest {
 
+	@Captor 
+	private ArgumentCaptor<String> messageCaptor;
+	
     @MockBean
     private OneTimePasswordGenerator pwGenerator;
     
-    @MockBean
-    private TS3LoginModule ts3LoginModule;
-
+    private static final int REQUESTER_CLIENT_DB_ID = 5;
+    
     @Before
     public void prepare() throws Exception {
         when(pwGenerator.generatePassword()).thenReturn("123456");
+        addClients(10);
     }
 
     @Test
@@ -74,7 +80,7 @@ public class AuthControllerTest extends RestControllerTest {
     }
 
     private String challenge() throws Exception {
-        AuthChallengeRequest request = AuthChallengeRequest.builder().clientDbId(5).build();
+        AuthChallengeRequest request = AuthChallengeRequest.builder().clientDbId(REQUESTER_CLIENT_DB_ID).build();
         MvcResult result = mockMvc.perform(post("/auth/challenge").contentType(contentType).content(json(request)))
                                   .andExpect(status().isOk())
                                   .andExpect(jsonPath("$.challenge", not(isEmptyString())))
@@ -92,7 +98,8 @@ public class AuthControllerTest extends RestControllerTest {
     }
 
     private String authenticateSuccessful(String challenge) throws Exception {
-        MvcResult result = authenticate(challenge, "123456").andExpect(status().isOk())
+    	verify(ts3api).sendPrivateMessage(eq(REQUESTER_CLIENT_DB_ID), messageCaptor.capture());
+        MvcResult result = authenticate(challenge, messageCaptor.getValue()).andExpect(status().isOk())
                                                             .andExpect(jsonPath("$.authToken", not(isEmptyString())))
                                                             .andExpect(jsonPath("$.expires", is(greaterThan(5))))
                                                             .andExpect(jsonPath("$.success", is(true))).andReturn();

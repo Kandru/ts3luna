@@ -10,6 +10,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import eu.kandru.luna.teamspeak.modules.login.AbstractTS3ApiMock;
+
 import javax.servlet.Filter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -21,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Created by jko on 16.04.2017.
  */
-public class RestControllerTest {
+public class RestControllerTest extends AbstractTS3ApiMock{
 
     protected MockMvc mockMvc;
     protected MediaType contentType = new MediaType(MediaType.APPLICATION_JSON.getType(),
