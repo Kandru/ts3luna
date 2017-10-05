@@ -3,12 +3,12 @@ pipeline {
   stages {
     stage('build') {
       steps {
-        sh 'gradlew assemble'
+        sh './gradlew assemble'
       }
     }
     stage('unit test') {
       steps {
-        sh 'gradlew check'
+        sh './gradlew check'
         junit(keepLongStdio: true, testResults: 'build/test-results/test/*xml')
       }
     }
