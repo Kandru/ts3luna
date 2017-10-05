@@ -1,13 +1,16 @@
 package eu.kandru.luna.security;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.CredentialsContainer;
+import org.springframework.security.core.authority.AuthorityUtils;
+
 
 /**
  * {@link org.springframework.security.core.Authentication}-Wrapper around {@link JwtIdentity}.
  *
  * @author jko
  */
-public class JwtAuthentication extends AbstractAuthenticationToken {
+public class JwtAuthentication extends AbstractAuthenticationToken implements CredentialsContainer {
 
     /**
      * The authorized client
@@ -23,8 +26,13 @@ public class JwtAuthentication extends AbstractAuthenticationToken {
      * Constructor
      */
     public JwtAuthentication(JwtIdentity principal, String jwtToken) {
-        super(null);
+        super(AuthorityUtils.createAuthorityList(principal.getRoles().stream().map(role -> "ROLE_" + role).toArray(String[]::new)));
         this.principal = principal;
+        this.jwtToken = jwtToken;
+    }
+
+    public JwtAuthentication(String jwtToken) {
+        super(null);
         this.jwtToken = jwtToken;
     }
 

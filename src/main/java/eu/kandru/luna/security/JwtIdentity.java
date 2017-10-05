@@ -8,11 +8,12 @@ import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.jose4j.lang.JoseException;
 
 import java.security.Principal;
+import java.util.List;
 
 /**
  * Representation of the JWT returned by {@link eu.kandru.luna.model.json.AuthenticateResponse}.
  * This class is supposed to be used as verified {@link Principal} to identify the client throughout the app.
- * Also keep in mind that the JWT representation of this class is transmitted in every client, so keep this class
+ * Also keep in mind that the JWT representation of this class is transmitted in every request, so keep this class
  * as small as possible!
  *
  * @author jko
@@ -20,8 +21,12 @@ import java.security.Principal;
 @Value
 @Builder
 public class JwtIdentity implements Principal {
+    private static final String CLAIM_UNIQUEID = "uid";
+    private static final String CLAIM_ROLES = "rol";
     // NOTE: Right now this is a stub. Add content as needed.
     private Integer clientDbId;
+    private String uniqueId;
+    private List<String> roles;
 
 
     /**
@@ -37,7 +42,11 @@ public class JwtIdentity implements Principal {
             InvalidJwtException,
             MalformedClaimException {
         JwtClaims claims = jwtService.parseJwt(jwt);
-        return JwtIdentity.builder().clientDbId(Integer.parseInt(claims.getSubject())).build();
+        return JwtIdentity.builder()
+                .clientDbId(Integer.parseInt(claims.getSubject()))
+                .uniqueId(claims.getStringClaimValue(CLAIM_UNIQUEID))
+                .roles(claims.getStringListClaimValue(CLAIM_ROLES))
+                .build();
     }
 
     /**
@@ -50,6 +59,8 @@ public class JwtIdentity implements Principal {
     public String toJwt(JwtService jwtService) throws JoseException {
         JwtClaims claims = new JwtClaims();
         claims.setSubject(clientDbId.toString());
+        claims.setStringClaim(CLAIM_UNIQUEID, uniqueId);
+        claims.setStringListClaim(CLAIM_ROLES, roles);
         return jwtService.generateJwt(claims);
     }
 

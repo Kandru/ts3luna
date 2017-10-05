@@ -2,6 +2,7 @@ package eu.kandru.luna.controller;
 
 
 import com.github.theholywaffle.teamspeak3.api.CommandFuture;
+import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
 import com.jayway.jsonpath.JsonPath;
 import eu.kandru.luna.model.json.AuthChallengeRequest;
 import eu.kandru.luna.model.json.AuthenticateRequest;
@@ -24,7 +25,7 @@ import java.util.regex.Pattern;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -43,17 +44,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class AuthControllerTest extends RestControllerTest {
 
     public static final String TEST_URL = "/protected/test";
+    public static final String ADMIN_TEST_URL = "/admin/test";
     @Captor
     private ArgumentCaptor<String> passwordTextCaptor;
 	private CommandFuture<Boolean> privateMessageFuture;
-    
-    private static final int CLIENT_ID = 5;
+
     private static final int CREATE_CLIENT_COUNT = 10;
+    private ClientInfo client;
+    private ClientInfo admin;
     // 0 < CLIENT_ID < CREATE_CLIENT_COUNT
 
     @Before
     public void prepare() throws Exception {
         addClients(CREATE_CLIENT_COUNT);
+        client = addDefaultClient();
+        admin = addAdminClient();
         privateMessageFuture = new CommandFuture<>();
         
         when(ts3api.sendPrivateMessage(anyInt(), any())).thenReturn(privateMessageFuture);
@@ -66,30 +71,45 @@ public class AuthControllerTest extends RestControllerTest {
 
     @Test
     public void testChallenge() throws Exception {
-        challenge();
+        challenge(client);
     }
 
     @Test
     public void testAuthentication() throws Exception {
-        String challenge = challenge();
+        String challenge = challenge(client);
         authenticateSuccessful(challenge);
     }
 
     @Test
     public void testAccessible() throws Exception {
-        String token = authenticateSuccessful(challenge());
+        String token = authenticateSuccessful(challenge(client));
         mockMvc.perform(get(TEST_URL).header("Authorization", "Bearer " + token)).andExpect(status().isOk());
     }
 
-    private String challenge() throws Exception {
-        AuthChallengeRequest request = AuthChallengeRequest.builder().clientDbId(CLIENT_ID).build();
+    @Test
+    public void testAdminUrlAccessible() throws Exception {
+        String adminChallenge = challenge(admin);
+        String adminToken = authenticateSuccessful(adminChallenge);
+        mockMvc.perform(get(ADMIN_TEST_URL).header("Authorization", "Bearer " + adminToken)).andExpect(status().isOk());
+    }
+
+    @Test
+    public void testAdminUrlInaccessible() throws Exception {
+        String challenge = challenge(client);
+        String token = authenticateSuccessful(challenge);
+        mockMvc.perform(get(ADMIN_TEST_URL).header("Authorization", "Bearer " + token)).andExpect(status().is4xxClientError());
+    }
+
+    private String challenge(ClientInfo client) throws Exception {
+        AuthChallengeRequest request = AuthChallengeRequest.builder().clientDbId(client.getDatabaseId()).build();
         MvcResult result = mockMvc.perform(post("/auth/challenge").contentType(contentType).content(json(request)))
                                   .andExpect(status().isOk())
                                   .andExpect(jsonPath("$.challenge", not(isEmptyString())))
                                   .andExpect(jsonPath("$.expires", is(5)))
                                   .andReturn();
-        dbClientInfoFutures.get(CLIENT_ID).set(mockedDbClientInfos.get(CLIENT_ID));
-        clientInfoFutures.get(CLIENT_ID).set(mockedClientInfos.get(CLIENT_ID));
+        int index = mockedClientInfos.indexOf(client);
+        dbClientInfoFutures.get(index).set(mockedDbClientInfos.get(index));
+        clientInfoFutures.get(index).set(mockedClientInfos.get(index));
         return JsonPath.read(result.getResponse().getContentAsString(), "$.challenge");
     }
 
@@ -102,7 +122,7 @@ public class AuthControllerTest extends RestControllerTest {
     }
 
     private String authenticateSuccessful(String challenge) throws Exception {
-        verify(ts3api).sendPrivateMessage(eq(CLIENT_ID), passwordTextCaptor.capture());    	
+        verify(ts3api).sendPrivateMessage(anyInt(), passwordTextCaptor.capture());
         Pattern p = Pattern.compile("[0-9]{6}");
         Matcher m = p.matcher(passwordTextCaptor.getValue());
         assertThat(m.find()).isTrue();

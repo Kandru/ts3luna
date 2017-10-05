@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import java.util.concurrent.TimeoutException;
+
 /**
  * Created by jko on 15.04.2017.
  */
@@ -25,12 +27,18 @@ public class ControllerExceptionHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(InvalidJwtException.class)
     public void handleInvalidJwt(InvalidJwtException e) {
-        log.error("a given jwt was invalid", e);
+        log.warn("a given jwt was invalid", e);
     }
 
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(MalformedClaimException.class)
     public void handleMalformedClaim(MalformedClaimException e) {
-        log.error("failed to parse jwt", e);
+        log.warn("failed to parse jwt", e);
+    }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(TimeoutException.class)
+    public void handleTimeoutException(TimeoutException e) {
+        log.error("connection to ts3 timed out", e);
     }
 }

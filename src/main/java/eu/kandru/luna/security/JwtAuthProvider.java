@@ -20,6 +20,7 @@ public class JwtAuthProvider implements AuthenticationProvider {
     @Autowired
     private JwtService jwtService;
 
+
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         JwtAuthentication auth = (JwtAuthentication) authentication;

@@ -24,4 +24,13 @@ public class TestController {
 
         return "yay";
     }
+
+    /**
+     * Random text
+     */
+    @RequestMapping(value = "/admin/test")
+    public String testSecurityAdmin(HttpServletRequest request) {
+
+        return "yay";
+    }
 }
