@@ -2,6 +2,7 @@ package eu.kandru.luna.controller;
 
 
 import com.github.theholywaffle.teamspeak3.api.CommandFuture;
+import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
 import com.jayway.jsonpath.JsonPath;
 import eu.kandru.luna.model.json.AuthChallengeRequest;
 import eu.kandru.luna.model.json.AuthenticateRequest;
@@ -24,7 +25,7 @@ import java.util.regex.Pattern;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -46,14 +47,17 @@ public class AuthControllerTest extends RestControllerTest {
     @Captor
     private ArgumentCaptor<String> passwordTextCaptor;
 	private CommandFuture<Boolean> privateMessageFuture;
-    
-    private static final int CLIENT_ID = 5;
+
     private static final int CREATE_CLIENT_COUNT = 10;
+    private ClientInfo client;
+    private ClientInfo admin;
     // 0 < CLIENT_ID < CREATE_CLIENT_COUNT
 
     @Before
     public void prepare() throws Exception {
         addClients(CREATE_CLIENT_COUNT);
+        client = addDefaultClient();
+        admin = addAdminClient();
         privateMessageFuture = new CommandFuture<>();
         
         when(ts3api.sendPrivateMessage(anyInt(), any())).thenReturn(privateMessageFuture);
@@ -81,15 +85,29 @@ public class AuthControllerTest extends RestControllerTest {
         mockMvc.perform(get(TEST_URL).header("Authorization", "Bearer " + token)).andExpect(status().isOk());
     }
 
+    @Test
+    public void testAdminUrlAccessible() throws Exception {
+        String adminChallenge = challenge();
+        String adminToken = authenticateSuccessful(adminChallenge);
+        mockMvc.perform(get(TEST_URL).header("Authorization", "Bearer " + adminToken)).andExpect(status().isOk());
+    }
+
+    @Test
+    public void testAdminUrlInacessible() throws Exception {
+        String adminChallenge = challenge();
+        String adminToken = authenticateSuccessful(adminChallenge);
+        mockMvc.perform(get(TEST_URL).header("Authorization", "Bearer " + adminToken)).andExpect(status().isOk());
+    }
+
     private String challenge() throws Exception {
-        AuthChallengeRequest request = AuthChallengeRequest.builder().clientDbId(CLIENT_ID).build();
+        AuthChallengeRequest request = AuthChallengeRequest.builder().clientDbId(client.getDatabaseId()).build();
         MvcResult result = mockMvc.perform(post("/auth/challenge").contentType(contentType).content(json(request)))
                                   .andExpect(status().isOk())
                                   .andExpect(jsonPath("$.challenge", not(isEmptyString())))
                                   .andExpect(jsonPath("$.expires", is(5)))
                                   .andReturn();
-        dbClientInfoFutures.get(CLIENT_ID).set(mockedDbClientInfos.get(CLIENT_ID));
-        clientInfoFutures.get(CLIENT_ID).set(mockedClientInfos.get(CLIENT_ID));
+        //dbClientInfoFutures.get(CLIENT_ID).set(mockedDbClientInfos.get(CLIENT_ID));
+        //clientInfoFutures.get(CLIENT_ID).set(mockedClientInfos.get(CLIENT_ID));
         return JsonPath.read(result.getResponse().getContentAsString(), "$.challenge");
     }
 
@@ -102,7 +120,7 @@ public class AuthControllerTest extends RestControllerTest {
     }
 
     private String authenticateSuccessful(String challenge) throws Exception {
-        verify(ts3api).sendPrivateMessage(eq(CLIENT_ID), passwordTextCaptor.capture());    	
+        verify(ts3api).sendPrivateMessage(anyInt(), passwordTextCaptor.capture());
         Pattern p = Pattern.compile("[0-9]{6}");
         Matcher m = p.matcher(passwordTextCaptor.getValue());
         assertThat(m.find()).isTrue();

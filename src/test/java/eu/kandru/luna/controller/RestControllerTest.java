@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Created by jko on 16.04.2017.
  */
-public class RestControllerTest extends AbstractTS3ApiMock{
+public class RestControllerTest extends AbstractTS3ApiMock {
 
     protected MockMvc mockMvc;
     protected MediaType contentType = new MediaType(MediaType.APPLICATION_JSON.getType(),
@@ -37,8 +37,8 @@ public class RestControllerTest extends AbstractTS3ApiMock{
     @Autowired
     void setConverters(HttpMessageConverter<Object>[] converters) {
 
-        httpConverter = Arrays.asList(converters).stream()
-                              .filter(hmc -> hmc instanceof MappingJackson2HttpMessageConverter)
+        httpConverter = Arrays.stream(converters)
+                .filter(MappingJackson2HttpMessageConverter.class::isInstance)
                               .findAny()
                               .orElse(null);
 
@@ -56,7 +56,6 @@ public class RestControllerTest extends AbstractTS3ApiMock{
         MockHttpOutputMessage output = new MockHttpOutputMessage();
         httpConverter.write(o, contentType, output);
         return output.getBodyAsString();
-
     }
 
 }

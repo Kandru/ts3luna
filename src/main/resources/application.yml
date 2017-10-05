@@ -22,4 +22,10 @@ teamspeak:
     server-id: 1
     nickname: Luna
     request-timeout: 500
+    admins:
+        - "iCVwAN/fd96VWTc0z3fiZQFJkXc="
+
+spring.profiles.active: dev
+
+
 

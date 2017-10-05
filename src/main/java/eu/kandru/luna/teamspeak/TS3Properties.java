@@ -1,11 +1,12 @@
 package eu.kandru.luna.teamspeak;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 @ConfigurationProperties("teamspeak")
@@ -21,5 +22,6 @@ public class TS3Properties {
     private Integer serverId;
     private String nickname;
     private Integer requestTimeout;
+    private List<String> admins;
 
 }
