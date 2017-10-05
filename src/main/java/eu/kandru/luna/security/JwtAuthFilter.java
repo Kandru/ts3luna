@@ -42,7 +42,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             if (jwtMatcher.matches()) {
                 String jwt = jwtMatcher.group(1);
                 try {
-                    Authentication auth = new JwtAuthentication(null, jwt);
+                    Authentication auth = new JwtAuthentication(jwt);
                     auth = jwtAuthProvider.authenticate(auth);
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 } catch (AuthenticationException e) {

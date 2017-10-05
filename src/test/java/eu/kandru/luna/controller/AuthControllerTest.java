@@ -44,6 +44,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class AuthControllerTest extends RestControllerTest {
 
     public static final String TEST_URL = "/protected/test";
+    public static final String ADMIN_TEST_URL = "/admin/test";
     @Captor
     private ArgumentCaptor<String> passwordTextCaptor;
 	private CommandFuture<Boolean> privateMessageFuture;
@@ -70,44 +71,45 @@ public class AuthControllerTest extends RestControllerTest {
 
     @Test
     public void testChallenge() throws Exception {
-        challenge();
+        challenge(client);
     }
 
     @Test
     public void testAuthentication() throws Exception {
-        String challenge = challenge();
+        String challenge = challenge(client);
         authenticateSuccessful(challenge);
     }
 
     @Test
     public void testAccessible() throws Exception {
-        String token = authenticateSuccessful(challenge());
+        String token = authenticateSuccessful(challenge(client));
         mockMvc.perform(get(TEST_URL).header("Authorization", "Bearer " + token)).andExpect(status().isOk());
     }
 
     @Test
     public void testAdminUrlAccessible() throws Exception {
-        String adminChallenge = challenge();
+        String adminChallenge = challenge(admin);
         String adminToken = authenticateSuccessful(adminChallenge);
-        mockMvc.perform(get(TEST_URL).header("Authorization", "Bearer " + adminToken)).andExpect(status().isOk());
+        mockMvc.perform(get(ADMIN_TEST_URL).header("Authorization", "Bearer " + adminToken)).andExpect(status().isOk());
     }
 
     @Test
-    public void testAdminUrlInacessible() throws Exception {
-        String adminChallenge = challenge();
-        String adminToken = authenticateSuccessful(adminChallenge);
-        mockMvc.perform(get(TEST_URL).header("Authorization", "Bearer " + adminToken)).andExpect(status().isOk());
+    public void testAdminUrlInaccessible() throws Exception {
+        String challenge = challenge(client);
+        String token = authenticateSuccessful(challenge);
+        mockMvc.perform(get(ADMIN_TEST_URL).header("Authorization", "Bearer " + token)).andExpect(status().is4xxClientError());
     }
 
-    private String challenge() throws Exception {
+    private String challenge(ClientInfo client) throws Exception {
         AuthChallengeRequest request = AuthChallengeRequest.builder().clientDbId(client.getDatabaseId()).build();
         MvcResult result = mockMvc.perform(post("/auth/challenge").contentType(contentType).content(json(request)))
                                   .andExpect(status().isOk())
                                   .andExpect(jsonPath("$.challenge", not(isEmptyString())))
                                   .andExpect(jsonPath("$.expires", is(5)))
                                   .andReturn();
-        //dbClientInfoFutures.get(CLIENT_ID).set(mockedDbClientInfos.get(CLIENT_ID));
-        //clientInfoFutures.get(CLIENT_ID).set(mockedClientInfos.get(CLIENT_ID));
+        int index = mockedClientInfos.indexOf(client);
+        dbClientInfoFutures.get(index).set(mockedDbClientInfos.get(index));
+        clientInfoFutures.get(index).set(mockedClientInfos.get(index));
         return JsonPath.read(result.getResponse().getContentAsString(), "$.challenge");
     }
 

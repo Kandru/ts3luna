@@ -1,4 +1,4 @@
-package eu.kandru.luna.teamspeak.modules.login;
+package eu.kandru.luna.teamspeak;
 
 import com.github.theholywaffle.teamspeak3.TS3ApiAsync;
 import com.github.theholywaffle.teamspeak3.api.CommandFuture;
@@ -6,10 +6,7 @@ import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
 import com.github.theholywaffle.teamspeak3.api.wrapper.DatabaseClient;
 import com.github.theholywaffle.teamspeak3.api.wrapper.DatabaseClientInfo;
-import eu.kandru.luna.teamspeak.TS3Manager;
-import eu.kandru.luna.teamspeak.TS3Properties;
 import org.junit.Before;
-import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
@@ -45,8 +42,8 @@ public abstract class AbstractTS3ApiMock {
     
     @Before
     public void mockTS3Api() throws InterruptedException, TimeoutException{
-    	MockitoAnnotations.initMocks(this);
-    	mockedClients  = new ArrayList<>();
+		//MockitoAnnotations.initMocks(this);
+		mockedClients  = new ArrayList<>();
     	mockedClientInfos  = new ArrayList<>();
     	mockedDbClients = new ArrayList<>();
     	mockedDbClientInfos = new ArrayList<>();
@@ -54,8 +51,8 @@ public abstract class AbstractTS3ApiMock {
 		dbClientInfoFutures = new ArrayList<>();
 		adminUIDs = new ArrayList<>();
 
-        when(manager.getTs3api()).thenReturn(ts3api);
-        when(ts3api.getClients()).thenReturn(clientList);
+		when(manager.getTs3ApiAsync()).thenReturn(ts3api);
+		when(ts3api.getClients()).thenReturn(clientList);
 		when(ts3api.getDatabaseClients()).thenReturn(dbClientList);
 
         //Mock spies

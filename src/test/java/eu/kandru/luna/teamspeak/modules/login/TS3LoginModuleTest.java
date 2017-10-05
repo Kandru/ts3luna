@@ -2,6 +2,7 @@ package eu.kandru.luna.teamspeak.modules.login;
 
 import com.github.theholywaffle.teamspeak3.api.CommandFuture;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
+import eu.kandru.luna.teamspeak.AbstractTS3ApiMock;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,7 +18,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
-public class TS3LoginModuleTest extends AbstractTS3ApiMock{
+public class TS3LoginModuleTest extends AbstractTS3ApiMock {
 
 	@Captor protected ArgumentCaptor<String> messageCaptor;
 	

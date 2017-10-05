@@ -31,6 +31,11 @@ public class JwtAuthentication extends AbstractAuthenticationToken implements Cr
         this.jwtToken = jwtToken;
     }
 
+    public JwtAuthentication(String jwtToken) {
+        super(null);
+        this.jwtToken = jwtToken;
+    }
+
     /**
      * Other constructor
      */

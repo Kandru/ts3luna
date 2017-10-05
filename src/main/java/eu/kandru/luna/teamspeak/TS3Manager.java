@@ -1,18 +1,15 @@
 package eu.kandru.luna.teamspeak;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
-
 import com.github.theholywaffle.teamspeak3.TS3ApiAsync;
 import com.github.theholywaffle.teamspeak3.TS3Config;
 import com.github.theholywaffle.teamspeak3.TS3Query;
 import com.github.theholywaffle.teamspeak3.api.CommandFuture;
 import com.github.theholywaffle.teamspeak3.api.exception.TS3ConnectionFailedException;
 import com.github.theholywaffle.teamspeak3.api.reconnect.ReconnectStrategy;
-
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 
 /**
  * Handles the ts3 connection. Provides the ts3 async api.
@@ -24,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 public class TS3Manager {
     private TS3Config ts3config;
     private TS3Query ts3query;
-    @Getter
     private TS3ApiAsync ts3api;
     private final int RECONNECTION_TIMEOUT = 10000;
 

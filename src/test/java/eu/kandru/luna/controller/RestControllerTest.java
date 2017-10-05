@@ -1,6 +1,6 @@
 package eu.kandru.luna.controller;
 
-import eu.kandru.luna.teamspeak.modules.login.AbstractTS3ApiMock;
+import eu.kandru.luna.teamspeak.AbstractTS3ApiMock;
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;

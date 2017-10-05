@@ -18,12 +18,12 @@ public class Ts3Utils {
     /**
      * Constructor
      *
-     * @param ts3Manager {@link TS3Manager} that provides the {@link TS3ApiAsync} for this class.
+     * @param ts3api {@link TS3ApiAsync} for this class
      * @param properties Configuration.
      */
     @Autowired
-    public Ts3Utils(TS3Manager ts3Manager, TS3Properties properties) {
-        this.ts3api = ts3Manager.getTs3ApiAsync();
+    public Ts3Utils(TS3ApiAsync ts3api, TS3Properties properties) {
+        this.ts3api = ts3api;
         this.properties = properties;
     }
 
