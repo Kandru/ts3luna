@@ -13,7 +13,7 @@ node {
             withEnv(['GRADLE_OPTS="-Dorg.gradle.daemon=false"']) {
                 sh './gradlew check'
             }
-        } catch (err) {
+        } finally {
             junit(keepLongStdio: true, testResults: 'build/test-results/test/*xml')
         }
     }
