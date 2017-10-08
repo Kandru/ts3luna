@@ -21,12 +21,11 @@ node {
         try {
             timeout(time: 30, unit: 'SECONDS') {
                 input 'Deploy to Staging?'
-
             }
         } catch (err) {
+            echo 'Not deploying to staging.'
             def user = err.getCauses()[0].getUser()
             if ('SYSTEM' == user.toString()) {
-                echo 'Staging skipped'
                 stagingTimeout = true
             }
         }
@@ -40,10 +39,7 @@ node {
                 }
             }
         } catch (err) {
-            def user = err.getCauses()[0].getUser()
-            if ('SYSTEM' == user.toString()) {
-                echo 'Production skipped'
-            }
+            echo 'Not deploying to production.'
         }
     }
 }
