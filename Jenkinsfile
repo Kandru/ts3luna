@@ -1,6 +1,4 @@
-//noinspection GroovyAssignabilityCheck
-pipeline {
-    agent any
+node {
     stages {
         def stagingTimeout = false
         stage('build') {
