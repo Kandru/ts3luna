@@ -1,47 +1,39 @@
 node {
     def stagingTimeout = false
     stage('build') {
-        steps {
-            sh './gradlew assemble'
-        }
+        sh './gradlew assemble'
     }
     stage('unit test') {
-        steps {
-            sh './gradlew check'
-        }
+        sh './gradlew check'
     }
     stage('deploy staging') {
-        steps {
-            try {
-                timeout(time: 30, unit: 'SECONDS') {
-                    input 'Deploy to Staging?'
+        try {
+            timeout(time: 30, unit: 'SECONDS') {
+                input 'Deploy to Staging?'
 
-                }
             }
-            catch (err) {
-                def user = err.getCauses()[0].getUser()
-                if ('SYSTEM' == user.toString()) {
-                    echo 'Staging skipped'
-                    stagingTimeout = true
-                }
+        }
+        catch (err) {
+            def user = err.getCauses()[0].getUser()
+            if ('SYSTEM' == user.toString()) {
+                echo 'Staging skipped'
+                stagingTimeout = true
             }
         }
     }
     stage('deploy production') {
-        steps {
-            try {
-                timeout(time: 30, unit: 'SECONDS') {
-                    if (!stagingTimeout) {
-                        input 'Deploy to production?'
+        try {
+            timeout(time: 30, unit: 'SECONDS') {
+                if (!stagingTimeout) {
+                    input 'Deploy to production?'
 
-                    }
                 }
             }
-            catch (err) {
-                def user = err.getCauses()[0].getUser()
-                if ('SYSTEM' == user.toString()) {
-                    echo 'Production skipped'
-                }
+        }
+        catch (err) {
+            def user = err.getCauses()[0].getUser()
+            if ('SYSTEM' == user.toString()) {
+                echo 'Production skipped'
             }
         }
     }
