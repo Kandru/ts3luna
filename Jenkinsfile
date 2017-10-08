@@ -1,4 +1,6 @@
 node {
+    checkout scm
+
     def stagingTimeout = false
     stage('build') {
         sh './gradlew assemble'
