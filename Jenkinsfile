@@ -1,12 +1,21 @@
 node {
+    def stagingTimeout = false
+
     checkout scm
 
-    def stagingTimeout = false
     stage('build') {
-        sh './gradlew assemble'
+        withEnv(['GRADLE_OPTS="-Dorg.gradle.daemon=false"']) {
+            sh './gradlew clean assemble'
+        }
     }
     stage('unit test') {
-        sh './gradlew check'
+        try {
+            withEnv(['GRADLE_OPTS="-Dorg.gradle.daemon=false"']) {
+                sh './gradlew check'
+            }
+        } catch (err) {
+            junit(keepLongStdio: true, testResults: 'build/test-results/test/*xml')
+        }
     }
     stage('deploy staging') {
         try {
@@ -14,8 +23,7 @@ node {
                 input 'Deploy to Staging?'
 
             }
-        }
-        catch (err) {
+        } catch (err) {
             def user = err.getCauses()[0].getUser()
             if ('SYSTEM' == user.toString()) {
                 echo 'Staging skipped'
@@ -31,17 +39,11 @@ node {
 
                 }
             }
-        }
-        catch (err) {
+        } catch (err) {
             def user = err.getCauses()[0].getUser()
             if ('SYSTEM' == user.toString()) {
                 echo 'Production skipped'
             }
-        }
-    }
-    post {
-        always {
-            junit(keepLongStdio: true, testResults: 'build/test-results/test/*xml')
         }
     }
 }
