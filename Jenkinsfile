@@ -1,30 +1,57 @@
+//noinspection GroovyAssignabilityCheck
 pipeline {
-  agent any
-  stages {
-    stage('build') {
-      steps {
-        sh './gradlew assemble'
-      }
+    agent any
+    stages {
+        def stagingTimeout = false
+        stage('build') {
+            steps {
+                sh './gradlew assemble'
+            }
+        }
+        stage('unit test') {
+            steps {
+                sh './gradlew check'
+            }
+        }
+        stage('deploy staging') {
+            steps {
+                try {
+                    timeout(time: 30, unit: 'SECONDS') {
+                        input 'Deploy to Staging?'
+
+                    }
+                }
+                catch (err) {
+                    def user = err.getCauses()[0].getUser()
+                    if('SYSTEM' == user.toString()) {
+                        echo 'Staging skipped'
+                        stagingTimeout = true
+                    }
+                }
+            }
+        }
+        stage('deploy production') {
+            steps {
+                try {
+                    timeout(time:30, unit: 'SECONDS') {
+                        if(!stagingTimeout) {
+                            input 'Deploy to production?'
+
+                        }
+                    }
+                }
+                catch (err) {
+                    def user = err.getCauses()[0].getUser()
+                    if('SYSTEM' == user.toString()) {
+                        echo 'Production skipped'
+                    }
+                }
+            }
+        }
     }
-    stage('unit test') {
-      steps {
-        sh './gradlew check'
-      }
+    post {
+        always {
+            junit(keepLongStdio: true, testResults: 'build/test-results/test/*xml')
+        }
     }
-    stage('deploy staging') {
-      steps {
-        input 'Deploy to Staging?'
-      }
-    }
-    stage('deploy production') {
-      steps {
-        input 'Deploy to production?'
-      }
-    }
-  }
-  post {
-    always {
-      junit(keepLongStdio: true, testResults: 'build/test-results/test/*xml')
-    }
-  }
 }
