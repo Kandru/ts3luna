@@ -4,9 +4,14 @@ buildscript {
     }
     repositories {
         mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath "com.gradle:build-scan-plugin:1.9"
+        classpath 'org.hidetake:gradle-ssh-plugin:2.9.0'
     }
 }
 //plugins {
@@ -16,9 +21,11 @@ buildscript {
 //	id "com.eriwen.gradle.js" version "2.14.1"
 //}
 
+apply plugin: "com.gradle.build-scan"
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
+apply plugin: 'org.hidetake.ssh'
 
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = 1.8
@@ -27,9 +34,18 @@ repositories {
     mavenCentral()
 }
 
+configurations {
+    groovyRuntime
+}
+
 processResources {
     //exclude '**/*.css'
     //exclude '**/*.js'
+}
+
+buildScan {
+    licenseAgreementUrl = 'https://gradle.com/terms-of-service'
+    licenseAgree = 'yes'
 }
 
 sourceSets {
@@ -72,4 +88,55 @@ dependencies {
 
     testRuntime('com.h2database:h2:1.4.196')
 
+    groovyRuntime "org.codehaus.groovy:groovy-all:2.4.12"
+
 }
+
+remotes {
+    staging {
+        host = findProperty('STAGING_HOST')
+        user = findProperty('STAGING_USER')
+        identity = file(findProperty('STAGING_IDENTITY'))
+        knownHosts = allowAnyHosts
+    }
+    production {
+        host = findProperty('PRODUCTION_HOST')
+        user = findProperty('PRODUCTION_USER')
+        identity = findProperty('PRODUCTION_IDENTITY')
+    }
+}
+
+ssh.settings {
+    extensions.add installTool: { File script, FileCollection payload ->
+        def tmpDir = "/tmp/${UUID.randomUUID()}/"
+        try {
+            //put from: project.configurations.groovyRuntime, into: tmpDir
+            put from: payload, into: tmpDir
+            put from: script, into: "$tmpDir/script.groovy"
+            execute "java -jar $tmpDir/groovy-all-*.jar $tmpDir/script.groovy"
+        } finally {
+            execute "rm -rf $tmpDir"
+        }
+    }
+}
+
+task deployStaging {
+    doLast {
+        ssh.run {
+            session(remotes.staging) {
+                installTool null, project.files(jar)
+            }
+        }
+    }
+}
+
+task deployProduction {
+    doLast {
+        ssh.run {
+            session(remotes.production) {
+                installTool null, project.files(jar)
+            }
+        }
+    }
+}
+

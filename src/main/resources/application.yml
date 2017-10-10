@@ -25,7 +25,12 @@ teamspeak:
     admins:
         - "iCVwAN/fd96VWTc0z3fiZQFJkXc="
 
-spring.profiles.active: dev
+management:
+    address: 127.0.0.1
+    security:
+        enabled: false
+
+#spring.profiles.active: dev
 
 
 
