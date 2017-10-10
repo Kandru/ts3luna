@@ -110,7 +110,8 @@ ssh.settings {
     extensions.add installTool: { File script, FileCollection payload ->
         def tmpDir = "/tmp/${UUID.randomUUID()}/"
         try {
-            //put from: project.configurations.groovyRuntime, into: tmpDir
+            execute "mkdir -p $tmpDir"
+            put from: project.configurations.groovyRuntime, into: tmpDir
             put from: payload, into: tmpDir
             put from: script, into: "$tmpDir/script.groovy"
             execute "java -jar $tmpDir/groovy-all-*.jar $tmpDir/script.groovy"
