@@ -1,19 +1,20 @@
 node {
+
     stage('scm checkout') {
         checkout scm
     }
 
     stage('build') {
-        withEnv(['GRADLE_OPTS="-Dorg.gradle.daemon=false"']) {
+        withEnv(['GRADLE_OPTS="-Dorg.gradle.daemon=true"']) {
             sh './gradlew clean assemble'
         }
     }
     stage('unit test') {
         try {
-            withEnv(['GRADLE_OPTS="-Dorg.gradle.daemon=false"']) {
+            withEnv(['GRADLE_OPTS="-Dorg.gradle.daemon=true"']) {
                 sh './gradlew check'
             }
-        } finally {
+        } catch (err) {
             junit(keepLongStdio: true, testResults: 'build/test-results/test/*xml')
         }
     }
@@ -22,19 +23,21 @@ node {
             timeout(time: 30, unit: 'SECONDS') {
                 input 'Deploy to Staging?'
             }
-            sh './gradlew deployStaging'
         } catch (err) {
-            echo 'Not deploying to staging.'
+            echo "Not deploying to staging"
+            return
         }
+        sh './gradlew deployStaging'
     }
     stage('deploy production') {
         try {
             timeout(time: 30, unit: 'SECONDS') {
                 input 'Deploy to production?'
             }
-            sh './gradlew deployProduction'
         } catch (err) {
-            echo 'Not deploying to production.'
+            echo "Not deploying to production"
+            return
         }
+        sh './gradlew deployProduction'
     }
 }
