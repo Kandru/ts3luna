@@ -108,24 +108,26 @@ remotes {
 
 ssh.settings {
     extensions.add installTool: { File script, FileCollection payload ->
-        def tmpDir = "/tmp/${UUID.randomUUID()}/"
+        def tmpDir = "/tmp/${UUID.randomUUID()}"
         try {
-            execute "mkdir -p $tmpDir"
-            put from: project.configurations.groovyRuntime, into: tmpDir
-            put from: payload, into: tmpDir
+            execute "mkdir -p $tmpDir/runtime"
+            execute "mkdir -p $tmpDir/application"
+            put from: project.configurations.groovyRuntime, into: "$tmpDir/runtime/"
+            put from: payload, into: "$tmpDir/application/"
             put from: script, into: "$tmpDir/script.groovy"
-            execute "java -jar $tmpDir/groovy-all-*.jar $tmpDir/script.groovy"
+            execute "java -cp '$tmpDir/runtime/*' -jar $tmpDir/runtime/groovy-all-*.jar $tmpDir/script.groovy"
         } finally {
-            execute "rm -rf $tmpDir"
+            //execute "rm -rf $tmpDir"
         }
     }
 }
 
 task deployStaging {
+    dependsOn jar
     doLast {
         ssh.run {
             session(remotes.staging) {
-                installTool null, project.files(jar)
+                installTool file("deployment/install.groovy"), files(jar, file("deployment/application.yml"))
             }
         }
     }
@@ -135,7 +137,7 @@ task deployProduction {
     doLast {
         ssh.run {
             session(remotes.production) {
-                installTool null, project.files(jar)
+                installTool file("deployment/install.groovy"), files(jar, file("deployment/application.yml"))
             }
         }
     }

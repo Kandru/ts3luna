@@ -1,0 +1,22 @@
+spring:
+    datasource:
+        url: jdbc:mysql://localhost:3306/ts3luna
+        username: ts3luna
+        password:
+
+teamspeak:
+    ip: 127.0.0.1
+    port: 10011
+    login: serveradmin
+    password: 82nztvNP
+    server-id: 1
+    nickname: Luna
+    request-timeout: 500
+    admins:
+        - "iCVwAN/fd96VWTc0z3fiZQFJkXc="
+
+management:
+    address: 127.0.0.1
+    security:
+        enabled: false
+
