@@ -124,21 +124,22 @@ ssh.settings {
 }
 
 task deployStaging {
-    dependsOn jar
+    dependsOn bootRepackage
     doLast {
         ssh.run {
             session(remotes.staging) {
-                installTool file("deployment/install.groovy"), files(jar)[0], file("deployment/application.yml")
+                installTool file("deployment/install.groovy"), files(bootRepackage)[0], file("deployment/application.yml")
             }
         }
     }
 }
 
 task deployProduction {
+    dependsOn bootRepackage
     doLast {
         ssh.run {
             session(remotes.production) {
-                installTool file("deployment/install.groovy"), files(jar)[0], file("deployment/application.yml")
+                installTool file("deployment/install.groovy"), files(bootRepackage)[0], file("deployment/application.yml")
             }
         }
     }
