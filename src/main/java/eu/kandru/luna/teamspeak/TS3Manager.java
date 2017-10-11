@@ -7,9 +7,12 @@ import com.github.theholywaffle.teamspeak3.api.CommandFuture;
 import com.github.theholywaffle.teamspeak3.api.exception.TS3ConnectionFailedException;
 import com.github.theholywaffle.teamspeak3.api.reconnect.ReconnectStrategy;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
+
+import java.util.logging.Handler;
 
 /**
  * Handles the ts3 connection. Provides the ts3 async api.
@@ -36,6 +39,11 @@ public class TS3Manager {
                 .setReconnectStrategy(ReconnectStrategy.constantBackoff(RECONNECTION_TIMEOUT));
 
         ts3query = new TS3Query(ts3config);
+        java.util.logging.Handler[] handlers = TS3Query.log.getHandlers();
+        for (Handler handler : handlers) {
+            TS3Query.log.removeHandler(handler);
+        }
+        TS3Query.log.addHandler(new SLF4JBridgeHandler());
         try {
             ts3query.connect();
 
@@ -73,8 +81,8 @@ public class TS3Manager {
             // TODO: reconnect
         }
     }
-    
-   @Bean
+
+    @Bean
     public TS3ApiAsync getTs3ApiAsync(){
     	return ts3api;
     }
