@@ -8,6 +8,7 @@ import java.util.zip.ZipOutputStream
 
 installDir = Paths.get(getClass().protectionDomain.codeSource.location.toURI()).parent
 applicationDir = installDir.resolve("application")
+applicationJar = applicationDir.resolve("ts3luna.jar")
 installConfig = applicationDir.resolve("application.yml")
 homeDir = Paths.get(System.getProperty("user.home"))
 lunaDir = homeDir.resolve("ts3luna")
@@ -55,9 +56,8 @@ void installApplication() {
     }
     delete.each { Files.delete(it) }
 
-    applicationDir.eachFile {
-        Files.copy(it, lunaDir.resolve(it.fileName))
-    }
+    Files.copy(applicationJar, lunaDir.resolve(applicationJar.fileName))
+
     if(!Files.exists(lunaConfig)) {
         Files.copy(installConfig, lunaConfig)
     }
