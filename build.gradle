@@ -91,7 +91,7 @@ dependencies {
     testRuntime('com.h2database:h2:1.4.196')
 
     groovyRuntime "org.codehaus.groovy:groovy-all:2.4.12"
-
+    runtime 'net.logstash.logback:logstash-logback-encoder:4.11'
 }
 
 remotes {
