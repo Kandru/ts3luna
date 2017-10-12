@@ -5,13 +5,13 @@ node {
     }
 
     stage('build') {
-        withEnv(['GRADLE_OPTS="-Dorg.gradle.daemon=true"']) {
+        withEnv(['GRADLE_OPTS="-Dorg.gradle.daemon=false"']) {
             sh './gradlew clean assemble'
         }
     }
     stage('unit test') {
         try {
-            withEnv(['GRADLE_OPTS="-Dorg.gradle.daemon=true"']) {
+            withEnv(['GRADLE_OPTS="-Dorg.gradle.daemon=false"']) {
                 sh './gradlew check'
             }
         } catch (err) {
