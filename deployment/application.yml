@@ -4,16 +4,6 @@ spring:
         username: ts3luna
         password:
 
-    jpa:
-        hibernate:
-            ddl-auto: none
-
-jwt:
-    expiration: 720 # minutes
-    not-before: 1 # minutes
-    clock-skew: 10 # seconds
-    issuer: ts3luna
-
 teamspeak:
     ip: 127.0.0.1
     port: 10011
@@ -29,8 +19,4 @@ management:
     address: 127.0.0.1
     security:
         enabled: false
-
-#spring.profiles.active: dev
-
-
 

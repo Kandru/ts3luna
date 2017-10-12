@@ -4,9 +4,14 @@ buildscript {
     }
     repositories {
         mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath "com.gradle:build-scan-plugin:1.9"
+        classpath 'org.hidetake:gradle-ssh-plugin:2.9.0'
     }
 }
 //plugins {
@@ -16,9 +21,11 @@ buildscript {
 //	id "com.eriwen.gradle.js" version "2.14.1"
 //}
 
+apply plugin: "com.gradle.build-scan"
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
+apply plugin: 'org.hidetake.ssh'
 
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = 1.8
@@ -27,9 +34,18 @@ repositories {
     mavenCentral()
 }
 
+configurations {
+    groovyRuntime
+}
+
 processResources {
     //exclude '**/*.css'
     //exclude '**/*.js'
+}
+
+buildScan {
+    licenseAgreementUrl = 'https://gradle.com/terms-of-service'
+    licenseAgree = 'yes'
 }
 
 sourceSets {
@@ -50,6 +66,8 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-web')
     compile('io.springfox:springfox-swagger2:2.7.0')
     compile('io.springfox:springfox-swagger-ui:2.7.0')
+
+    compile('org.slf4j:jul-to-slf4j:1.7.25')
 
     runtime('org.springframework.boot:spring-boot-devtools')
     runtime('mysql:mysql-connector-java')
@@ -72,4 +90,60 @@ dependencies {
 
     testRuntime('com.h2database:h2:1.4.196')
 
+    groovyRuntime "org.codehaus.groovy:groovy-all:2.4.12"
+    runtime 'net.logstash.logback:logstash-logback-encoder:4.11'
 }
+
+remotes {
+    staging {
+        host = findProperty('STAGING_HOST')
+        user = findProperty('STAGING_USER')
+        identity = file(findProperty('STAGING_IDENTITY'))
+        knownHosts = allowAnyHosts
+    }
+    production {
+        host = findProperty('PRODUCTION_HOST')
+        user = findProperty('PRODUCTION_USER')
+        identity = findProperty('PRODUCTION_IDENTITY')
+    }
+}
+
+ssh.settings {
+    extensions.add installTool: { File script, File jar, File config ->
+        def tmpDir = "/tmp/${UUID.randomUUID()}"
+        try {
+            execute "mkdir -p $tmpDir/runtime"
+            execute "mkdir -p $tmpDir/application"
+            put from: project.configurations.groovyRuntime, into: "$tmpDir/runtime/"
+            put from: jar, into: "$tmpDir/application/ts3luna.jar"
+            put from: config, into: "$tmpDir/application/application.yml"
+            put from: script, into: "$tmpDir/script.groovy"
+            execute "java -cp '$tmpDir/runtime/*' -jar $tmpDir/runtime/groovy-all-*.jar $tmpDir/script.groovy"
+        } finally {
+            execute "rm -rf $tmpDir"
+        }
+    }
+}
+
+task deployStaging {
+    dependsOn bootRepackage
+    doLast {
+        ssh.run {
+            session(remotes.staging) {
+                installTool file("deployment/install.groovy"), files(jar)[0], file("deployment/application.yml")
+            }
+        }
+    }
+}
+
+task deployProduction {
+    dependsOn bootRepackage
+    doLast {
+        ssh.run {
+            session(remotes.production) {
+                installTool file("deployment/install.groovy"), files(jar)[0], file("deployment/application.yml")
+            }
+        }
+    }
+}
+

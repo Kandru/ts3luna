@@ -1,7 +1,8 @@
 node {
-    def stagingTimeout = false
 
-    checkout scm
+    stage('scm checkout') {
+        checkout scm
+    }
 
     stage('build') {
         withEnv(['GRADLE_OPTS="-Dorg.gradle.daemon=false"']) {
@@ -13,7 +14,7 @@ node {
             withEnv(['GRADLE_OPTS="-Dorg.gradle.daemon=false"']) {
                 sh './gradlew check'
             }
-        } finally {
+        } catch (err) {
             junit(keepLongStdio: true, testResults: 'build/test-results/test/*xml')
         }
     }
@@ -23,23 +24,20 @@ node {
                 input 'Deploy to Staging?'
             }
         } catch (err) {
-            echo 'Not deploying to staging.'
-            def user = err.getCauses()[0].getUser()
-            if ('SYSTEM' == user.toString()) {
-                stagingTimeout = true
-            }
+            echo "Not deploying to staging"
+            return
         }
+        sh './gradlew deployStaging'
     }
     stage('deploy production') {
         try {
             timeout(time: 30, unit: 'SECONDS') {
-                if (!stagingTimeout) {
-                    input 'Deploy to production?'
-
-                }
+                input 'Deploy to production?'
             }
         } catch (err) {
-            echo 'Not deploying to production.'
+            echo "Not deploying to production"
+            return
         }
+        sh './gradlew deployProduction'
     }
 }
