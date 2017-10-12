@@ -52,6 +52,8 @@ function obtainTicket(clDbId) {
         var storage = getStorage();
         storage.authTicketExpires = new Date(new Date().getTime() + data.expires * 60 * 1000);
         storage.authTicket = data.challenge;
+    }).fail((jqXHR) => {
+        // add an error label
     });
 }
 
@@ -71,6 +73,8 @@ function obtainToken(password) {
             storage.authTokenExpires = new Date(new Date().getTime() + data.expires * 60 * 1000);
             storage.authToken = data.authToken;
         }
+    }).fail((jqXHR) => {
+        // add an error label
     });
 }
 

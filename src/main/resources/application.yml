@@ -21,7 +21,7 @@ teamspeak:
     password: 82nztvNP
     server-id: 1
     nickname: Luna
-    request-timeout: 500
+    request-timeout: 1500
     admins:
         - "iCVwAN/fd96VWTc0z3fiZQFJkXc="
 

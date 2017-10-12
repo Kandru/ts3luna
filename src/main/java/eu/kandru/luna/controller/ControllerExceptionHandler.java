@@ -36,7 +36,7 @@ public class ControllerExceptionHandler {
         log.warn("failed to parse jwt", e);
     }
 
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.GATEWAY_TIMEOUT)
     @ExceptionHandler(TimeoutException.class)
     public void handleTimeoutException(TimeoutException e) {
         log.error("connection to ts3 timed out", e);
