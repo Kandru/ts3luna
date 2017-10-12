@@ -44,8 +44,7 @@ void addToZip(String prefix, Path path, ZipOutputStream out) {
 
 void installApplication() {
     lunaDir.eachFileRecurse(FileType.FILES) {
-        if( it.fileName ==~ '.*\\.yml' || it.fileName ==~ '.*start\\.sh' || it.fileName ==~ '.*stop\\.sh' || it.fileName ==~ '.*\\.xml' ) { return }
-        Files.delete it
+        if( it.fileName ==~ '.*\\.jar' ) Files.delete it
     }
 
     def delete = []
